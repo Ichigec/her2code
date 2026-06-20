@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencode-plus.local/schemas/a2a-acp-index.schema.json",
+  "title": "A2AAcpIndex",
+  "description": "Append-only cross-session index of agent-to-agent (A2A), agent coordination protocol (ACP) and MCP endpoints. Stored at opencode+/opencode_claw/.compactor/knowledge/a2a-acp-index.json. Append-only: dedup by `id`; existing records keep their facts (transport, endpoint, agent_card_url) and add to `capabilities` (union).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["records"],
+  "properties": {
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "transport", "endpoint"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^(a2a|acp|mcp)\\.[a-z0-9_.-]+$"
+          },
+          "transport": {
+            "type": "string",
+            "enum": ["a2a", "acp", "mcp"]
+          },
+          "endpoint": {
+            "type": "string",
+            "description": "URL, unix socket, or command invocation. Verbatim from discovery."
+          },
+          "agent_card_url": {
+            "type": "string"
+          },
+          "capabilities": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Union of capabilities observed across all sessions."
+          },
+          "first_seen_session": {
+            "type": "string"
+          },
+          "last_seen_session": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

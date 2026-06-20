@@ -1,0 +1,55 @@
+@startuml claw-compactor-sequence-composter
+title Composter — read-only behaviours (with knowledge/ seed)
+skinparam shadowing false
+skinparam defaultFontName "JetBrains Mono"
+skinparam sequenceArrowColor #444
+
+actor User
+participant "opencode\nsession" as OC
+participant "composter\nagent" as Comp
+database ".compactor/" as Disk
+
+User -> OC : "/agents composter"
+OC -> Comp : start session
+
+== Seed (always) ==
+Comp -> Disk : read knowledge/tool-catalog.json\nknowledge/prospect-index.json\nknowledge/a2a-acp-index.json
+note right of Comp
+  cross-session view first;
+  individual sessions/<sid>/
+  are read only on demand
+end note
+
+alt "explain --since 7d"
+  User -> Comp : explain --since 7d
+  Comp -> Disk : read log.jsonl (filter ts >= now-7d)
+  Comp -> Disk : read summaries/YYYY-MM-DD.md
+  Comp -> Comp : group by day, summarise op
+  Comp -> User : digest + links into summaries/
+  note right
+    tool claims cite
+    knowledge/tool-catalog.json
+    rather than scanning sessions/
+  end note
+
+else "explain action <id>"
+  User -> Comp : explain action act_xxxxxx
+  Comp -> Disk : read log.jsonl (find id)
+  Comp -> Disk : resolve evidence anchors (path:line)
+  Comp -> Disk : read drafts/<op-id>/ if linked
+  Comp -> User : evidence-grounded explanation
+
+else "propose rollback <id>"
+  User -> Comp : propose rollback act_xxxxxx
+  Comp -> Disk : read action + draft
+  Comp -> User : unified diff + draft log entry\n(op:rollback, targets:[<id>]);\nprints only, does NOT write
+
+else "show drift"
+  User -> Comp : show drift
+  Comp -> Disk : read registry/integrations.<latest>.json
+  Comp -> Disk : read knowledge/tool-catalog.json (cross-session view)
+  Comp -> Comp : diff vs current compose.*.yml + MCP config
+  Comp -> User : drift report
+end
+
+@enduml

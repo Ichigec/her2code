@@ -1,0 +1,88 @@
+@startuml opencode-plus-sequences
+title OpenCode+ — сценарии запуска и работы
+skinparam shadowing false
+skinparam defaultFontName "JetBrains Mono"
+skinparam sequenceMessageAlign center
+skinparam noteFontSize 11
+
+actor "Разработчик" as Dev
+participant "start-opencode-litellm.sh\n→ start-opencode.sh" as Boot
+participant "lib/*.sh\n(env + profile)" as Lib
+participant "configs/\nopencode.litellm-dual.json" as Tpl
+participant "~/.config/opencode/\nopencode.json" as Cfg
+participant "opencode web :3400\n+ core (host)" as Web
+participant "plugin\nstep-reviewer" as Plug
+participant "LiteLLM :4000\n(docker)" as Lite
+participant "LM Studio :1234" as LMS
+participant "llama-server :8092" as Llama
+participant "Phoenix" as Phx
+
+== 1. Bootstrap стенда (текущий дефолт) ==
+
+Dev -> Boot : bash start-opencode-litellm.sh
+Boot -> Lib : load_opencode_env()\n.env → .env.opencode → opencode+/.env
+Lib -> Lib : load_opencode_plus_profile()\nlmstudio-tvall.env (перезаписывает)
+Lib --> Boot : провайдер=litellm,\ndefault=tvall43, small=qwen3.6
+Boot -> Tpl : читает шаблон
+Boot -> Cfg : cp шаблон → opencode.json\n(на КАЖДОМ старте!)
+note right of Cfg
+  Правки живого конфига теряются
+  при рестарте — править надо шаблон.
+end note
+Boot -> Web : запуск opencode web (host, :3400)\nOPENCODE_HOME=~/.opencode-host
+Web -> Cfg : читает конфиг + per-agent thinking
+Web -> Plug : загрузка плагина\n(interval=10, model=qwen3.6-heretic)
+Web --> Dev : UI готов на http://127.0.0.1:3400
+
+== 2. Backends (предусловие) ==
+
+Dev -> LMS : GUI: загрузить tvall43,\nLocal Server :1234
+Dev -> Llama : (опц.) .run/start-llama-direct.sh\nдля thinking-агентов
+Dev -> Lite : start-litellm-dual.sh\ndocker compose up -d --force-recreate
+note over Lite
+  alias из docker/litellm/config.yaml:
+   tvall43-…heretic        → LM Studio :1234
+   qwen3.6-35b-heretic     → llama :8092
+end note
+
+== 3. Основной цикл: запрос пользователя ==
+
+Dev -> Web : промпт (+ @file)
+Web -> Web : выбрать агента\n(build=LMS off / plan=llama thinking on)
+
+loop agentic loop (до stop / max steps)
+  Web -> Lite : POST /chat/completions\n(+ chat_template_kwargs.enable_thinking)
+  alt модель = tvall43 (build/explore/title)
+    Lite -> LMS : проксирование\n(enable_thinking игнорируется)
+    LMS --> Lite : ответ
+  else модель = qwen3.6-heretic (plan/general/deep-explore)
+    Lite -> Llama : проксирование (MTP draft)\nthinking ON
+    Llama --> Lite : ответ (~2× decode)
+  end
+  Lite --> Phx : trace запроса/ответа
+  Lite --> Web : tool_calls | text
+  Web -> Web : execute tools (read/edit/bash)
+end
+
+Web --> Dev : diff / ответ / todo
+
+== 4. Надсмотрщик step-reviewer (каждые 10 шагов) ==
+
+Web -> Plug : session.next.step.* / tool.execute.after
+note right of Plug
+  накапливает историю шагов (size=30)
+end note
+Plug -> Lite : POST /chat/completions\n«оцени прогресс / залупа?»\nmodel=qwen3.6-35b-heretic
+Lite -> Llama : проксирование
+Llama --> Lite : verdict OK | CAUTION | STUCK
+Lite --> Plug : текст вердикта
+Plug -> Web : experimental.chat.system.transform\nвставка в system след. хода
+Web --> Dev : следующий ход с подсказкой\n«ты долбишься в стену, попробуй другое»
+
+== 5. Остановка ==
+
+Dev -> Boot : bash stop-all.sh
+Boot -> Web : stop-opencode.sh (kill :3400)
+Boot -> Llama : stop-llama.sh (kill :8092)
+
+@enduml

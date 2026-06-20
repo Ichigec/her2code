@@ -1,0 +1,18 @@
+name: hermes-opencode
+version: "0.1.0"
+description: "opencode-style agents, permissions, and tools for Hermes. Wires the declarative permission engine (allow/ask/deny with glob/command patterns and per-model gating), registers the opencode-parity tools (glob, list, lsp), and primes the shared agent registry (agent/agents.py) including the read-only explore/scout subagents. Acts as the update-safe enforcement point: a pre_tool_call hook denies tools the active permission policy forbids even when core hooks are unavailable."
+author: "NousResearch (Hermes opencode port)"
+kind: standalone
+hooks:
+  - pre_tool_call
+provides_tools:
+  - glob
+  - list
+  - lsp
+# Plugin-declared default rights for the tools this plugin provides. These are
+# the lowest-precedence baseline; config.yaml `permission:` and per-agent
+# `permission:` override them. The three tools are read-only, so allow.
+permission:
+  glob: allow
+  list: allow
+  lsp: allow

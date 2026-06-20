@@ -1,0 +1,7 @@
+{
+  "name": "opencode-claw-compactor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenCode plugin: checkpoint claw/composter sessions at the 100k-token compaction boundary. Writes structured snapshots under opencode+/opencode_claw/.compactor/{sessions,knowledge}/."
+}

@@ -1,0 +1,9 @@
+# NEVER commit real keys or personal data
+.env
+
+# Docker volumes
+.hermes-docker/
+
+# OS files
+.DS_Store
+Thumbs.db

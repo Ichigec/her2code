@@ -1,0 +1,78 @@
+@startuml claw-compactor-sequence-compaction
+title claw-compactor plugin — hook flow at the 100k-token boundary
+skinparam shadowing false
+skinparam defaultFontName "JetBrains Mono"
+skinparam sequenceArrowColor #444
+
+actor User
+participant "opencode runtime" as OC
+participant "token\ncounter" as TC
+participant "claw-compactor\nplugin" as Plugin
+participant "LiteLLM\n(extractor)" as LLM
+database ".compactor/sessions/<sid>/" as Sess
+database ".compactor/knowledge/" as Know
+
+User -> OC : turn N: send message
+OC -> TC : count input tokens after preludes
+TC --> OC : tokens_input = 102345
+
+note over OC, TC
+  context_limit = 262144
+  compaction.reserved = 162144
+  trigger when input > 100000
+end note
+
+OC -> OC : auto-compaction starts
+OC -> Plugin : event "tool.execute.after" (latest calls)
+note right of Plugin
+  plugin keeps a per-sessionID buffer
+  of every tool call observed so far
+end note
+
+OC -> Plugin : hook experimental.session.compacting(sessionID)
+Plugin -> OC : client.session.messages({ path:{id:sessionID} })
+OC --> Plugin : messages -> latest user message.agent
+alt agent NOT in cfg.agents
+  Plugin --> OC : return (no-op, opencode uses default prompt)
+end
+
+alt buffer is non-empty
+  Plugin -> LLM : POST /chat/completions\n(prompt = "extract tools/prospects/a2a_acp",\nresponse_format=json_object,\ntimeout=30s)
+  alt LLM returns JSON
+    LLM --> Plugin : raw structured payload
+    Plugin -> Plugin : normalize + validate\n(regex: id, evidence path:line,\nscore in [0,1])
+  else timeout or error
+    Plugin ->x LLM : (abort / timeout)
+    Plugin -> Plugin : fall back to partial payload\n(raw tool list + minimal plan)
+  end
+else buffer empty
+  Plugin -> Plugin : skip LLM call, build empty payload
+end
+
+Plugin -> Sess : nextSeq() -> 1, 2, ...
+Plugin -> Sess : write checkpoint.<seq>.json\n(schema: checkpoint.schema.json)
+Plugin -> Sess : write plan.json\n(schema: continuation-plan.schema.json)
+Plugin -> Know : mergeAppend tool-catalog.json
+Plugin -> Know : mergeAppend prospect-index.json
+Plugin -> Know : mergeAppend a2a-acp-index.json
+note right of Know
+  append-only:
+    new id     -> push, confirmations=1
+    existing id -> last_seen += sid,
+                   confirmations++,
+                   evidence := union
+end note
+
+Plugin -> OC : output.prompt := custom continuation prompt
+Plugin -> OC : output.context.push(checkpoint + plan + knowledge pointers)
+note right of OC
+  current opencode ignores output.context
+  when output.prompt is set;
+  context is pushed for forward-compatibility
+end note
+OC -> OC : generate continuation summary\n(using plugin's prompt)
+OC -> Plugin : event "session.compacted"
+Plugin -> Plugin : (telemetry log line)
+OC -> User : turn N+1 starts with summary + checkpoint pointer
+
+@enduml

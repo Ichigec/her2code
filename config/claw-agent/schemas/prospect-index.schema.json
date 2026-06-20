@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencode-plus.local/schemas/prospect-index.schema.json",
+  "title": "ProspectIndex",
+  "description": "Append-only cross-session index of `could-be-tool` candidates. Stored at opencode+/opencode_claw/.compactor/knowledge/prospect-index.json. Each entry records a file/config that looks like an undiscovered tool surface but has not yet been confirmed. Merged from checkpoint.<n>.json `prospects[]` via append-only semantics: existing records have `sessions_observed[]` appended and `score` is taken as the max across observations.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["records"],
+  "properties": {
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "candidate_path", "why_could_be_tool", "score", "sessions_observed"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^candidate\\.[a-z0-9_.-]+$"
+          },
+          "candidate_path": {
+            "type": "string",
+            "pattern": "^[^:\\s][^\\s]*:\\d+(-\\d+)?$"
+          },
+          "why_could_be_tool": {
+            "type": "string",
+            "minLength": 1
+          },
+          "score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Maximum confidence observed across all sessions."
+          },
+          "sessions_observed": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string" },
+            "description": "Session ids in which this prospect was observed (deduplicated)."
+          }
+        }
+      }
+    }
+  }
+}

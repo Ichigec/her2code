@@ -1,0 +1,29 @@
+services:
+  hermes:
+    build: ./hermes-agent
+    image: hermes-agent
+    container_name: hermes-test
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - HERMES_UID=1000
+      - HERMES_GID=1000
+      - API_SERVER_HOST=0.0.0.0
+      - API_SERVER_PORT=18648
+      - API_SERVER_KEY
+      - GATEWAY_ALLOW_ALL_USERS=true
+      - HERMES_DISABLE_MESSAGING=1
+      - DEEPSEEK_API_KEY
+      - OPENAI_API_KEY
+      - ANTHROPIC_API_KEY
+      - OPENROUTER_API_KEY
+      - KIMI_API_KEY
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:18648/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 120s
+    command:
+      - gateway
+      - run

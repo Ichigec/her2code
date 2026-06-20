@@ -1,0 +1,36 @@
+[Unit]
+Description=OpenCode+ agent (native opencode web UI on :3400, without llama.cpp)
+Documentation=file:///home/user/cursor/first/opencode+/README.md
+After=network-online.target docker.service
+Wants=network-online.target
+# docker нужен только если выбран профиль с LiteLLM; не делаем Requires, чтобы
+# опенкод поднимался даже без докера.
+After=docker.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+User=user
+Group=pavel
+WorkingDirectory=/home/user/cursor/first/opencode+
+
+Environment=HOME=/home/user
+Environment=USER=pavel
+Environment=LOGNAME=pavel
+Environment=PATH=/home/user/.local/bin:/home/user/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+# Стартуем ТОЛЬКО opencode agent (web UI). llama.cpp руками:
+#   bash /home/user/cursor/first/opencode+/start-llama-qwen.sh --daemon
+ExecStart=/usr/bin/bash /home/user/cursor/first/opencode+/start-opencode.sh
+ExecStop=/usr/bin/bash  /home/user/cursor/first/opencode+/stop-opencode.sh
+
+TimeoutStartSec=180
+TimeoutStopSec=60
+
+StandardOutput=append:/home/user/cursor/first/opencode+/.run/systemd.log
+StandardError=append:/home/user/cursor/first/opencode+/.run/systemd.log
+
+[Install]
+WantedBy=multi-user.target

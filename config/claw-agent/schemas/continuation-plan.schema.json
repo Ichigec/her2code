@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencode-plus.local/schemas/continuation-plan.schema.json",
+  "title": "ContinuationPlan",
+  "description": "`where to go next` pointer written by the `claw-compactor` plugin alongside every checkpoint. Stored at opencode+/opencode_claw/.compactor/sessions/<session_id>/plan.json. Unlike checkpoint files which are append-only (checkpoint.1.json, checkpoint.2.json, …), plan.json is rewritten on every compaction with the freshest plan. A resumed session reads plan.json to know which `next_actions` to execute first.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["session_id", "current_step", "next_actions"],
+  "properties": {
+    "session_id": {
+      "type": "string"
+    },
+    "current_step": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 6,
+      "description": "Position in the claw pipeline (1=discover, 2=classify, 3=detect, 4=draft, 5=log, 6=exit; see AGENTS.md §3)."
+    },
+    "next_actions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Concrete, ordered next steps phrased as imperatives."
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Things that prevent progress (missing tools, failing health checks, unanswered questions)."
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Working hypotheses that the resumed session should re-verify before acting on them."
+    },
+    "checkpoint_ref": {
+      "type": "string",
+      "pattern": "^sessions/[^/]+/checkpoint\\.\\d+\\.json$",
+      "description": "Path to the checkpoint that produced this plan."
+    }
+  }
+}

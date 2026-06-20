@@ -1,0 +1,190 @@
+@startuml Hermes_Sequence_Diagram
+' =============================================================================
+' Hermes Stack — Sequence Diagram: User → Hermes Agent → LLM → Tools → Response
+' Shows the complete interaction lifecycle for a typical agent request.
+' PID: pavel_20260619_200039
+' Date: 2026-06-19
+' =============================================================================
+
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+skinparam responseMessageBelowArrow true
+skinparam ParticipantPadding 30
+skinparam BoxPadding 10
+
+title Hermes Stack — Sequence Diagram: User → Agent → LLM → Tools → Response\n
+
+' =============================================================================
+' PARTICIPANTS
+' =============================================================================
+actor "User\n(Person)" as User
+
+box "Client Layer"
+    participant "Android App\n(Kotlin/Compose)" as Android
+    participant "CLI / TUI\n(Python+React)" as CLI
+    participant "OpenCode Web\n(Node.js :3400)" as WebUI
+end box
+
+box "API & Gateway Layer"
+    participant "API Server\n(FastAPI :8648)" as API
+    participant "Gateway\n(SSE :8643)" as Gateway
+end box
+
+box "Hermes Agent Core"
+    participant "AIAgent\n(run_agent.py)" as Agent
+    participant "Tool\nOrchestrator" as Tools
+    participant "Provider\nAdapter" as Provider
+end box
+
+box "LLM Layer"
+    participant "LiteLLM Proxy\n(:4000)" as LiteLLM
+    participant "Llama.cpp\n(:8092)" as LlamaCPP
+    participant "Cloud LLM\n(OpenAI/Anthropic/DeepSeek)" as CloudLLM
+end box
+
+box "Tool Execution"
+    participant "MCP Server\n(claw-graph)" as MCP
+    participant "Neo4j\n(:7687)" as Neo4j
+    participant "Searchbox\n(:8024)" as Searchbox
+end box
+
+box "Persistence"
+    database "Session DB\n(state.db)" as DB
+    file "MEMORY.md\n(Memory)" as Memory
+end box
+
+' =============================================================================
+' ALTERNATIVE 1: Full Chat Flow (Android)
+' =============================================================================
+
+== Phase 1: User sends a message ==
+
+User -> Android : 1. Types: "Show me the Claude 4 architecture\ndiagram from my education graph"
+
+Android -> Android : 2. Build JSON request\n{message, session_id, stream: true}
+
+Android -> API : 3. POST /v1/chat\nAuthorization: Bearer <KEY>
+
+API -> API : 4. Validate API key\n(API_SERVER_KEY check)
+
+API -> Gateway : 5. Open SSE channel\non session_id
+
+API -> Agent : 6. agent.process(\n  input="Show me Claude 4...",\n  session_id="abc123",\n  stream=True\n)
+
+Agent -> Memory : 7. load_memory(session_id)
+
+Memory --> Agent : 8. User context:\n- Name: User\n- Hardware: Jetson ARM64\n- Neo4j available...
+
+Agent -> DB : 9. INSERT INTO messages\n(session_id, role='user', content)
+
+== Phase 2: Agent loads context & skills ==
+
+Agent -> Agent : 10. Load AGENTS.md conventions
+Agent -> Agent : 11. Load skill:\n"autonomous-ai-agents/hermes-agent"
+
+Agent -> Provider : 12. build_prompt(\n  system=AGENTS.md + skills,\n  messages=session_history,\n  tools=available_tools\n)
+
+== Phase 3: First LLM call — Tool Selection ==
+
+Agent -> Provider : 13. chat_completion(\n  model="deepseek-v4-pro",\n  messages=[system, user],\n  tools=[graph_search, web_search, ...],\n  stream=True\n)
+
+Provider -> LiteLLM : 14. POST /chat/completions\n(if LiteLLM proxy configured)
+
+note right #FFF9C4
+  Provider routing:
+  • LiteLLM proxy → multi-provider
+  • Direct → DeepSeek API
+  • Llama.cpp → local inference
+end note
+
+LiteLLM -> CloudLLM : 15. Proxy request to DeepSeek
+
+CloudLLM --> LiteLLM : 16. Stream: tool_calls[0]\n{name: "graph_search",\n args: {query: "Claude 4 architecture"}}
+
+LiteLLM --> Provider : 17. Stream complete
+Provider --> Agent : 18. Response: tool_call
+
+Agent -> Gateway : 19. SSE event: tool_call\n{name, args}
+
+Gateway --> Android : 20. SSE: data: {"type":"tool_call",...}\n\n
+Android -> Android : 21. Show "Searching graph..."
+
+== Phase 4: Tool Execution ==
+
+Agent -> Tools : 22. execute_tool(\n  name="graph_search",\n  args={query: "Claude 4 architecture"}\n)
+
+Tools -> Tools : 23. Resolve tool:\nclaw-graph MCP → mcp_server
+
+Tools -> MCP : 24. MCP call: graph_search(\n  {query: "Claude 4 architecture"}\n)
+
+MCP -> Neo4j : 25. MATCH (n:Concept)\nWHERE n.name CONTAINS "Claude 4"\nRETURN n, relationships
+
+Neo4j --> MCP : 26. Graph results:\n- Claude 4 (Anthropic, 2025)\n- Architecture: MoE, 500B params\n- Connects to: Opus, Sonnet
+
+MCP --> Tools : 27. MCP response:\n{nodes: [...], edges: [...]}
+
+Tools -> Agent : 28. Tool result:
+Agent -> Gateway : 29. SSE event: tool_result
+
+Gateway --> Android : 30. SSE: data: {"type":"tool_result",...}\n\n
+
+== Phase 5: Second LLM call — Response Generation ==
+
+Agent -> Provider : 31. chat_completion(\n  model="deepseek-v4-pro",\n  messages=[...tool_result...],\n  stream=True\n)
+
+Provider -> CloudLLM : 32. Second API call with tool results
+
+CloudLLM --> Provider : 33. Stream: "Claude 4 is Anthropic's\nnext-gen model featuring..."
+
+Agent -> Gateway : 34. SSE event: text_delta\n{delta: "Claude 4 is Anthropic's..."}
+
+Gateway --> Android : 35. SSE: data: {"type":"text_delta",...}\n\n
+Android -> Android : 36. Append token to chat bubble
+
+note right #E8F5E9
+  SSE streaming repeats
+  for each token (delta)
+  until done event
+end note
+
+CloudLLM --> Provider : 37. Stream: ... [more tokens] ...
+
+Agent -> Gateway : 38. SSE event: text_delta × N
+Gateway --> Android : 39. SSE stream continues...
+
+== Phase 6: Completion ==
+
+CloudLLM --> Provider : 40. Stream end: finish_reason="stop"
+
+Provider --> Agent : 41. Completion
+Agent -> DB : 42. INSERT INTO messages\n(role='assistant', content)
+
+Agent -> Gateway : 43. SSE event: done\n{usage: {tokens: 450}}
+
+Gateway --> Android : 44. SSE: data: {"type":"done",...}\n\n
+Android -> Android : 45. Show complete response
+
+Agent -> Memory : 46. Consolidate memory:\n"User asked about Claude 4\narchitecture from education graph"
+
+Agent --> API : 47. Return: session_id, status
+
+API --> Android : 48. HTTP 200 OK
+
+Android --> User : 49. Display complete answer
+
+== Phase 7: (Alternate) Voice Pipeline ==
+
+group Voice Interaction
+    User -> Android : 50. Tap mic, speaks
+    Android -> Android : 51. Record OPUS audio
+    Android -> Android : 52. Voice Proxy (:8647)\nPOST /stt
+    Android <- Android : 53. Transcribed text
+    Android -> API : 54. Same as Phase 1 (step 3)
+    ... rest same as text flow ...
+    Gateway -> Android : 55. SSE: text_delta
+    Android -> Android : 56. Voice Proxy (:8647)\nPOST /tts
+    Android -> User : 57. Play synthesized audio
+end
+
+@enduml

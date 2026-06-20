@@ -1,0 +1,298 @@
+# sanitize-config.yaml — Декларативная конфигурация санитизации стека Hermes
+# PID: pavel_20260619_200039
+# Используется sanitize.py для полного цикла: copy → replace → verify → generate
+
+# === TARGET ===
+target_dir: "/home/user/dev/codemes/pavel_20260619_200039/her2code"
+
+# === SOURCES (include-list — что копируется) ===
+sources:
+  hermes_agent:
+    src: "~/.hermes/hermes-agent/"
+    dst: "hermes-agent/"
+    exclude: [".git", "__pycache__", "venv", ".env", "auth.json", "bin", "*.pyc", "*.egg-info", "node_modules"]
+
+  opencode_android:
+    src: "~/dev/Opencode/"
+    dst: "opencode-android/"
+    exclude: [".git", "build", ".gradle", "*.apk", "local.properties", "*.jks", "*.keystore", ".idea", "*.iml"]
+
+  opencode_plus:
+    src: "~/cursor/opencode+/"
+    dst: "opencode-plus/"
+    exclude: [".git", "*.log", "__pycache__", "start-*.sh"]
+
+  user_agents:
+    src: "~/.hermes/agents/"
+    dst: "config/agents/"
+
+  user_skills:
+    src: "~/.hermes/skills/"
+    dst: "config/skills/"
+    exclude: ["pavel-environment", "__pycache__"]
+
+  user_plugins:
+    src: "~/.hermes/plugins/"
+    dst: "config/plugins/"
+    exclude: ["__pycache__"]
+
+  user_hooks:
+    src: "~/.hermes/hooks/"
+    dst: "config/hooks/"
+    exclude: ["__pycache__"]
+
+  user_scripts:
+    src: "~/.hermes/scripts/"
+    dst: "config/scripts/"
+    exclude: ["__pycache__"]
+
+  infra_neo4j:
+    src: "~/.hermes/compose.neo4j.yml"
+    dst: "infra/compose.neo4j.yml"
+
+  voice_proxy:
+    src: "~/dev/Opencode/voice_proxy.py"
+    dst: "opencode-android/voice_proxy.py"
+
+  tcp_proxy:
+    src: "~/dev/Opencode/tcp_proxy.py"
+    dst: "opencode-android/tcp_proxy.py"
+
+  config_yaml:
+    src: "~/.hermes/config.yaml"
+    dst: "config/config.yaml"
+
+# === REPLACEMENTS (8+ категорий замен — Research RQ3) ===
+replacements:
+  # Category 1: File system paths
+  - category: "paths"
+    description: "Replace /home/pavel with /home/user in all text files"
+    patterns:
+      - match: "/home/pavel"
+        replace: "/home/user"
+    file_types: [".py", ".md", ".yaml", ".yml", ".json", ".sh", ".env", ".txt", ".toml", ".cfg", ".service", ".properties", ".kts", ".mjs"]
+
+  # Category 2: API Keys — generic sk- tokens
+  - category: "api_keys"
+    description: "Replace real API keys with placeholder"
+    patterns:
+      - match: "\\bsk-[A-Za-z0-9]{20,}\\b"
+        replace: "sk-local"
+    exclude_files: ["test_skills_guard.py", "test_memory_tool.py", "native-mcp.md"]
+    file_types: [".py", ".md", ".yaml", ".yml", ".json", ".sh", ".env", ".txt"]
+
+  # Category 3: Provider API key values (env file patterns)
+  - category: "provider_keys"
+    description: "Replace API key values in env-like files"
+    patterns:
+      - match: "^(DEEPSEEK_API_KEY=).+$"
+        replace: "\\1<YOUR_DEEPSEEK_KEY>"
+      - match: "^(OPENAI_API_KEY=).+$"
+        replace: "\\1<YOUR_OPENAI_KEY>"
+      - match: "^(ANTHROPIC_API_KEY=).+$"
+        replace: "\\1<YOUR_ANTHROPIC_KEY>"
+      - match: "^(KIMI_API_KEY=).+$"
+        replace: "\\1<YOUR_KIMI_KEY>"
+      - match: "^(API_SERVER_KEY=).+$"
+        replace: "\\1<YOUR_API_SERVER_KEY>"
+      - match: "^(BWS_ACCESS_TOKEN=).+$"
+        replace: "\\1<YOUR_BW_TOKEN>"
+      - match: "^(TELEGRAM_BOT_TOKEN=).+$"
+        replace: "\\1<YOUR_BOT_TOKEN>"
+      - match: "^(LITELLM_API_KEY=).+$"
+        replace: "\\1<YOUR_LITELLM_KEY>"
+      - match: "^(LLAMA_CPP_MODEL_PATH=).+$"
+        replace: "\\1<MODEL_PATH>"
+    file_types: [".env", ".example", ".sh", ".yaml", ".yml"]
+
+  # Category 4: User names and identifiers
+  - category: "user_names"
+    description: "Replace personal name/username with generic user"
+    patterns:
+      - match: "\\buser@localhost\\.local\\b"
+        replace: "user@localhost"
+      - match: "\\b<YOUR_GITHUB_USER>\\b"
+        replace: "<YOUR_GITHUB_USER>"
+      - match: "\\bПавел\\b"
+        replace: "User"
+      - match: "\\bUser\\b"
+        replace: "User"
+      - match: "\\bpavel_"
+        replace: "user_"
+      - match: "\\bjetson\\.local\\b"
+        replace: "localhost"
+    file_types: [".md", ".json", ".yaml", ".yml", ".txt", ".service", ".cfg", ".sh", ".py"]
+
+  # Category 5: Telegram identifiers
+  - category: "telegram_ids"
+    description: "Replace Telegram chat/user IDs"
+    patterns:
+      - match: "\\b<YOUR_CHAT_ID>\\b"
+        replace: "<YOUR_CHAT_ID>"
+      - match: "\\b<YOUR_USER_ID>\\b"
+        replace: "<YOUR_USER_ID>"
+      - match: "<YOUR_BOT_USERNAME>"
+        replace: "<YOUR_BOT_USERNAME>"
+      - match: "<YOUR_CHANNEL>"
+        replace: "<YOUR_CHANNEL>"
+      - match: "\\b8967908897\\b"
+        replace: "<YOUR_BOT_ID>"
+    file_types: [".md", ".json", ".yaml", ".yml", ".py", ".sh"]
+
+  # Category 6: IP addresses
+  - category: "ip_addresses"
+    description: "Replace personal IP addresses with placeholders"
+    patterns:
+      - match: "\\b64\\.188\\.64\\.52\\b"
+        replace: "<YOUR_VPS_IP>"
+      - match: "\\b95\\.24\\.31\\.191\\b"
+        replace: "<YOUR_PUBLIC_IP>"
+      - match: "\\b95\\.24\\.32\\.220\\b"
+        replace: "<YOUR_HOME_IP>"
+      - match: "\\b192\\.168\\.0\\.48\\b"
+        replace: "<YOUR_LOCAL_IP>"
+      - match: "\\b192\\.168\\.0\\.1\\b"
+        replace: "<YOUR_ROUTER_IP>"
+    file_types: [".md", ".yaml", ".yml", ".json", ".sh", ".txt", ".py", ".properties"]
+
+  # Category 7: Hostnames
+  - category: "hostnames"
+    description: "Replace personal hostnames and domains"
+    patterns:
+      - match: "\\bvpn1\\.play2go\\.cloud\\b"
+        replace: "<YOUR_VPS_HOSTNAME>"
+      - match: "\\b<YOUR_WIFI_SSID>\\b"
+        replace: "<YOUR_WIFI_SSID>"
+      - match: "\\b<YOUR_HOSTNAME>\\b"
+        replace: "<YOUR_HOSTNAME>"
+      - match: "\\braicomml-landing\\b"
+        replace: "<YOUR_PROJECT>"
+    file_types: [".md", ".sh", ".txt", ".yaml", ".yml", ".py"]
+
+  # Category 8: Tunnel URLs
+  - category: "tunnel_urls"
+    description: "Replace localhost.run and cloudflare tunnel URLs"
+    patterns:
+      - match: "\\b[a-f0-9]{6,16}\\.lhr\\.life\\b"
+        replace: "<YOUR_TUNNEL_URL>"
+      - match: "\\b[a-z0-9-]+\\.trycloudflare\\.com\\b"
+        replace: "<YOUR_TUNNEL_URL>"
+    file_types: [".md", ".json", ".log", ".py", ".yaml", ".yml"]
+
+  # Category 9: Model paths
+  - category: "model_paths"
+    description: "Replace specific model file paths with placeholder"
+    patterns:
+      - match: "~/\\.lmstudio/models/[A-Za-z0-9_/.-]+"
+        replace: "<MODEL_PATH>"
+      - match: "/home/user/\\.lmstudio/models/[A-Za-z0-9_/.-]+"
+        replace: "<MODEL_PATH>"
+    file_types: [".env", ".md", ".sh", ".yaml", ".yml"]
+
+  # Category 10: Phone hardware ID
+  - category: "phone_hardware_id"
+    description: "Replace phone device ID"
+    patterns:
+      - match: "\\b<YOUR_PHONE_ID>\\b"
+        replace: "<YOUR_PHONE_ID>"
+    file_types: [".md", ".py", ".json"]
+
+  # Category 11: VLESS UUID
+  - category: "vpn_uuid"
+    description: "Replace VLESS UUID"
+    patterns:
+      - match: "\\b<YOUR_VLESS_UUID>\\b"
+        replace: "<YOUR_VLESS_UUID>"
+    file_types: [".md", ".yaml", ".yml", ".json", ".conf"]
+
+  # Category 12: PID prefix
+  - category: "pid_prefix"
+    description: "Replace User's PID prefix in isolation dir paths"
+    patterns:
+      - match: "pavel_20260619_200039"
+        replace: "user_YYYYMMDDHHMMSS"
+    file_types: [".md"]
+
+# === FILES EXCLUDED FROM SANITIZATION (tooling files) ===
+sanitize_exclude:
+  - "sanitize-config.yaml"
+  - "sanitize.py"
+  - "Makefile"
+  - "SANITIZATION_LOG.md"
+  - "README.md"
+
+# === TEXT_FILE_EXTENSIONS (what sanitize.py considers "text" for replacement) ===
+text_file_extensions:
+  - ".py"
+  - ".md"
+  - ".yaml"
+  - ".yml"
+  - ".json"
+  - ".sh"
+  - ".env"
+  - ".txt"
+  - ".toml"
+  - ".cfg"
+  - ".service"
+  - ".properties"
+  - ".kts"
+  - ".mjs"
+  - ".js"
+  - ".ts"
+  - ".tsx"
+  - ".css"
+  - ".html"
+  - ".xml"
+  - ".gradle"
+  - ".ini"
+  - ".conf"
+  - ".example"
+  - ".sql"
+  - "Dockerfile"
+  - "Makefile"
+  - ".gitignore"
+
+# === DATABASES (to be schema-only cleaned) ===
+databases:
+  - name: "state"
+    src: "~/.hermes/state.db"
+    dst: "db/state.db"
+    schema_dst: "db/state.schema.sql"
+  - name: "audit"
+    src: "~/.hermes/audit.db"
+    dst: "db/audit.db"
+    schema_dst: "db/audit.schema.sql"
+  - name: "kanban"
+    src: "~/.hermes/kanban.db"
+    dst: "db/kanban.db"
+    schema_dst: "db/kanban.schema.sql"
+  - name: "metrics"
+    src: "~/.hermes/metrics.db"
+    dst: "db/metrics.db"
+    schema_dst: "db/metrics.schema.sql"
+  - name: "response_store"
+    src: "~/.hermes/response_store.db"
+    dst: "db/response_store.db"
+    schema_dst: "db/response_store.schema.sql"
+
+# === VERIFICATION (встроенная в sanitize.py) ===
+verification:
+  gitleaks: false
+  grep_paths: true
+  grep_keys: true
+  grep_pii: true
+
+# === GENERATION (финальные артефакты) ===
+generation:
+  config_example:
+    src: "config/config.yaml"
+    dst: "config/config.yaml.example"
+  env_example:
+    dst: "config/.env.example"
+  cron_example:
+    src: "config/cron/jobs.json"
+    dst: "config/cron/jobs.json.example"
+  android_local_properties:
+    dst: "opencode-android/local.properties.example"
+  sanitization_log:
+    dst: "SANITIZATION_LOG.md"

@@ -1,0 +1,188 @@
+@startuml Hermes_C4_Level2_Containers
+' =============================================================================
+' Hermes Stack — Logical Architecture (C4 Level 2: Container diagram)
+' Shows all containers (deployable units) and their relationships.
+' PID: pavel_20260619_200039
+' Date: 2026-06-19
+' =============================================================================
+
+!include <C4/C4_Container>
+!include <C4/C4_Context>
+
+LAYOUT_TOP_DOWN()
+LAYOUT_WITH_LEGEND()
+
+title Hermes Stack — C4 Level 2 Container Diagram
+
+' ---------------------------------------------------------------------------
+' Person
+' ---------------------------------------------------------------------------
+Person(user, "User", "Interacts via Android app, CLI, or Web UI")
+
+' ---------------------------------------------------------------------------
+' System Boundary: Hermes Platform
+' ---------------------------------------------------------------------------
+System_Boundary(hermes_platform, "Hermes Agent Platform") {
+
+    ' --- Container Boundary: Hermes Agent Core ---
+    System_Boundary(core_boundary, "Hermes Agent Core") {
+        Container(cli, "CLI / TUI", "Python + Rich + Ink/React", "Interactive terminal interface and subcommands")
+        Container(ai_agent, "AIAgent Engine", "Python (run_agent.py)", "Dialog orchestration, tool calling, prompt management")
+        Container(tool_orch, "Tool Orchestrator", "Python (model_tools.py)", "Tool registry, dispatch, permission gates")
+        Container(session_db, "Session DB", "SQLite FTS5 (state.db)", "Session history, message store, memory consolidation")
+        Container(gateway, "Gateway", "Python (gateway/)", "Multi-platform messaging: Telegram, Discord, Slack, API Server")
+        Container(plugins_core, "Core Plugins", "Python (18 built-in)", "Memory providers, model providers, Kanban, observability")
+        Container(skills_core, "Core Skills", "Markdown (50+ skills)", "Reusable agent capabilities: data-science, deployment, git...")
+        Container(cron, "Cron Scheduler", "Python (cron/)", "Scheduled task execution (knowledge curator, reminders)")
+        Container(acp, "ACP Adapter", "Python (acp_adapter/)", "VS Code / Zed / JetBrains editor integration")
+    }
+
+    ' --- Container Boundary: User Extensions ---
+    System_Boundary(ext_boundary, "User Extensions (~/.hermes/)") {
+        Container(agents, "Agent Definitions", "Markdown (14 agents)", "Role definitions: architect, developer, researcher, security...")
+        Container(skills_user, "User Skills", "Markdown (24 dirs)", "Custom skills: pavel-environment, hermes-distribution...")
+        Container(plugins_user, "User Plugins", "Node.js/Python", "claw-neo4j (MCP), hermes-opencode (permissions)")
+        Container(hooks, "Hooks", "Python (7 hooks)", "Pre/post hooks: workspace enforcement, AGENTS.md injection, skill router")
+        Container(scripts, "Utility Scripts", "Python (7 scripts)", "Claw discovery, process, audit; knowledge curator")
+        Container(plans, "Plans", "Markdown (8 plans)", "Project task plans")
+        Container(memories, "Memory", "Markdown (MEMORY.md, USER.md)", "Agent persistent memory (~40 KB)")
+    }
+
+    ' --- Container Boundary: API Layer ---
+    System_Boundary(api_boundary, "API & Streaming Layer") {
+        Container(api_server, "Hermes API Server", "FastAPI + Uvicorn :8648", "REST API for Android client and external consumers")
+        Container(api_gateway, "API Gateway", "Starlette :8643", "SSE streaming endpoint, request routing")
+        Container(provider_adapters, "Provider Adapters", "Python (providers/)", "OpenAI, Anthropic, DeepSeek, OpenRouter, LiteLLM adapters")
+    }
+}
+
+' ---------------------------------------------------------------------------
+' System Boundary: Client Applications
+' ---------------------------------------------------------------------------
+System_Boundary(clients, "Client Applications") {
+    Container(android_app, "Android App", "Kotlin + Jetpack Compose", "Chat UI, voice assistant, SSE streaming")
+    Container(voice_proxy, "Voice Proxy", "Python :8647", "STT (faster-whisper) + TTS (Piper) HTTP proxy")
+    Container(tcp_proxy, "TCP Proxy", "Python", "TCP tunnel for Android connectivity")
+    Container(websocket_relay, "Voice Relay", "OpenAI-compat :8089", "WebSocket voice relay infrastructure")
+}
+
+' ---------------------------------------------------------------------------
+' System Boundary: OpenCode+ (LLM Serving)
+' ---------------------------------------------------------------------------
+System_Boundary(opencode_plus, "OpenCode+ (LLM Serving & Web UI)") {
+    Container(litellm_proxy, "LiteLLM Proxy", "Python :4000", "Multi-provider LLM proxy with cost tracking")
+    Container(llama_cpp, "llama.cpp Server", "C++ :8092", "Local LLM inference (Qwen 35B, GPU/CPU)")
+    Container(opencode_web, "OpenCode Web UI", "Node.js :3400", "Browser-based agent interface")
+    Container(phoenix_obs, "Phoenix Observability", "Python :6006", "LLM trace observability (Arize Phoenix)")
+    Container(start_scripts, "Start Scripts", "Bash (9 scripts)", "Start-up orchestrator for all OpenCode+ services")
+}
+
+' ---------------------------------------------------------------------------
+' System Boundary: MCP Servers (Tool Ecosystem)
+' ---------------------------------------------------------------------------
+System_Boundary(mcp_servers, "MCP Servers (Tool Ecosystem)") {
+    Container(mcp_neo4j, "claw-graph MCP", "Node.js (mcp-server.mjs)", "Neo4j knowledge graph queries & traversal")
+    Container(mcp_education, "education-graph MCP", "Python (graph_tool/)", "Educational knowledge graph, learning paths")
+    Container(mcp_searchbox, "Searchbox MCP", "Docker :8024", "15+ search engines aggregation (web search)")
+    Container(mcp_codebase, "codebase-graph MCP", "Python", "Codebase indexing and semantic search")
+}
+
+' ---------------------------------------------------------------------------
+' System Boundary: Infrastructure
+' ---------------------------------------------------------------------------
+System_Boundary(infra, "Infrastructure") {
+    Container(neo4j, "Neo4j Database", "Docker (neo4j:5) :7474/:7687", "Graph database for knowledge graphs and MCP")
+    Container(openwebui, "OpenWebUI", "Docker :3000", "Alternative Web UI with RAG")
+    Container(openhands, "OpenHands", "Docker :12000", "AI agent sandbox environment")
+    Container(gitea, "Gitea", "Go binary :3030", "Self-hosted Git server")
+    Container(docker_compose, "Docker Compose", "YAML (multiple files)", "Orchestration: neo4j, openwebui, openhands, hermes-agent")
+    Container(sing_box, "Sing-Box VPN", "Sing-Box config", "VLESS+Reality VPN tunnel to VPS")
+}
+
+' ---------------------------------------------------------------------------
+' External Systems
+' ---------------------------------------------------------------------------
+System_Ext(llm_cloud, "Cloud LLM Providers", "OpenAI, Anthropic, DeepSeek, OpenRouter")
+System_Ext(vps, "VPS (Remote)", "Public-facing server for tunnel termination")
+System_Ext(telegram, "Telegram API", "Bot API for messaging gateway")
+System_Ext(search_engines, "Search Engines", "Google, Bing, DuckDuckGo, etc.")
+
+' =============================================================================
+' RELATIONSHIPS
+' =============================================================================
+
+' --- User → Client ---
+Rel(user, android_app, "Uses chat/voice", "HTTP/SSE")
+Rel(user, cli, "Uses terminal", "CLI")
+Rel(user, opencode_web, "Uses browser", "HTTPS")
+
+' --- Android Client → Hermes ---
+Rel(android_app, api_server, "REST API calls", "HTTP/JSON :8648")
+Rel(android_app, api_gateway, "SSE stream", "SSE :8643")
+Rel(android_app, voice_proxy, "STT/TTS requests", "HTTP :8647")
+Rel(voice_proxy, websocket_relay, "Voice relay", "WS :8089")
+
+' --- CLI → Core ---
+Rel(cli, ai_agent, "Invokes agent loop", "Python call")
+
+' --- Core Internal ---
+Rel(ai_agent, tool_orch, "Dispatches tool calls", "Python call")
+Rel(ai_agent, session_db, "Stores/retrieves sessions", "SQLite FTS5")
+Rel(ai_agent, gateway, "Sends/receives messages", "Python call")
+Rel(ai_agent, skills_core, "Loads skill instructions", "Markdown parsing")
+Rel(ai_agent, plugins_core, "Activates plugins", "Plugin system")
+Rel(ai_agent, cron, "Schedules tasks", "Python call")
+Rel(ai_agent, memories, "Reads/writes memory", "File I/O")
+Rel(ai_agent, hooks, "Triggers hooks", "Pre/post hook events")
+Rel(tool_orch, provider_adapters, "Routes LLM calls", "Python call")
+
+' --- Gateway → External ---
+Rel(gateway, telegram, "Sends/receives messages", "HTTPS Bot API")
+Rel(gateway, api_gateway, "Routes to SSE", "Internal HTTP")
+
+' --- API Server → Core ---
+Rel(api_server, ai_agent, "Proxies requests", "Python call")
+Rel(api_server, api_gateway, "SSE streaming", "Internal HTTP")
+Rel(api_gateway, session_db, "Session validation", "SQLite")
+
+' --- Provider Adapters → External ---
+Rel(provider_adapters, llm_cloud, "API calls", "HTTPS")
+Rel(provider_adapters, litellm_proxy, "Routes via proxy", "HTTP :4000")
+Rel(provider_adapters, llama_cpp, "Local inference", "HTTP :8092")
+
+' --- OpenCode+ internal ---
+Rel(litellm_proxy, llm_cloud, "Proxies API calls", "HTTPS")
+Rel(litellm_proxy, llama_cpp, "Routes to local", "HTTP :8092")
+Rel(litellm_proxy, phoenix_obs, "Sends traces", "gRPC/HTTP :6006")
+Rel(opencode_web, litellm_proxy, "LLM requests", "HTTP :4000")
+Rel(start_scripts, litellm_proxy, "Starts service", "Process spawn")
+Rel(start_scripts, llama_cpp, "Starts service", "Process spawn")
+Rel(start_scripts, opencode_web, "Starts service", "Process spawn")
+
+' --- MCP Servers ---
+Rel(tool_orch, mcp_neo4j, "MCP tool calls", "stdio/HTTP")
+Rel(tool_orch, mcp_searchbox, "MCP tool calls", "HTTP :8024")
+Rel(tool_orch, mcp_education, "MCP tool calls", "stdio/Python")
+Rel(tool_orch, mcp_codebase, "MCP tool calls", "stdio/Python")
+Rel(mcp_neo4j, neo4j, "Cypher queries", "Bolt :7687")
+Rel(mcp_education, neo4j, "Graph queries", "Bolt :7687")
+Rel(mcp_searchbox, search_engines, "Search queries", "HTTPS")
+
+' --- Infrastructure ---
+Rel(neo4j, "", "Graph DB storage", "")
+Rel(docker_compose, neo4j, "Orchestrates", "Docker")
+Rel(docker_compose, openwebui, "Orchestrates", "Docker")
+Rel(docker_compose, openhands, "Orchestrates", "Docker")
+Rel(openwebui, litellm_proxy, "LLM requests", "HTTP :4000")
+Rel(plugins_user, neo4j, "MCP queries", "Bolt :7687")
+Rel(hooks, ai_agent, "Intercepts calls", "Event hooks")
+Rel(scripts, neo4j, "Discovery/audit queries", "Bolt :7687")
+Rel(agents, ai_agent, "Role definitions", "File load")
+Rel(plans, ai_agent, "Task plans", "File load")
+
+' --- VPN / Networking ---
+Rel(sing_box, vps, "VLESS+Reality tunnel", "Encrypted TCP")
+Rel(api_server, vps, "Exposed via tunnel", "Reverse proxy")
+Rel(tcp_proxy, api_server, "TCP tunnel for Android", "TCP :8648")
+
+@enduml

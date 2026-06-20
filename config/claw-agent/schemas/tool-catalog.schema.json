@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencode-plus.local/schemas/tool-catalog.schema.json",
+  "title": "ToolCatalog",
+  "description": "Append-only cross-session knowledge base of confirmed tools. Stored at opencode+/opencode_claw/.compactor/knowledge/tool-catalog.json. Plugin `claw-compactor` calls `mergeAppend` on every checkpoint: new entries are inserted; entries with an existing `id` only update `last_seen_session` and increment `confirmations`. Facts (kind, first_seen_session, evidence[]) are never overwritten.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["records"],
+  "properties": {
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "first_seen_session", "last_seen_session", "evidence", "confirmations"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9._-]+$",
+            "description": "Stable dotted id, e.g. `mcp.searchbox`. Unique within the catalog."
+          },
+          "kind": {
+            "type": "string",
+            "enum": ["mcp", "lsp", "script", "compose-service", "skill", "agent", "adapter", "llm-model"]
+          },
+          "first_seen_session": {
+            "type": "string",
+            "description": "Session id of the first checkpoint that introduced this tool."
+          },
+          "last_seen_session": {
+            "type": "string",
+            "description": "Session id of the most recent checkpoint that confirmed this tool."
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "description": "Union of evidence anchors observed across all checkpoints (deduplicated).",
+            "items": {
+              "type": "string",
+              "pattern": "^[^:\\s][^\\s]*:\\d+(-\\d+)?$"
+            }
+          },
+          "confirmations": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of distinct checkpoints that confirmed this tool. Monotonic."
+          },
+          "tool_dir": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "target": { "type": "string" },
+          "mcp_usage": { "type": "string" },
+          "endpoint": { "type": "string" },
+          "c_layer": { "type": "string", "enum": ["C0", "C1", "C2", "C3", "C4"] },
+          "linux_layer": {
+            "type": "string",
+            "enum": [
+              "L0", "L1", "L2", "L3", "L4", "L5",
+              "L6", "L7", "L8", "L9", "L10", "L11", "L12"
+            ]
+          },
+          "status": { "type": "string", "enum": ["active", "pruned", "unknown"] },
+          "_reserved": { "type": "object", "additionalProperties": true }
+        }
+      }
+    }
+  }
+}

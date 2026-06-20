@@ -1,0 +1,56 @@
+# MCP Servers Configuration
+# Add to ~/.hermes/config.yaml under mcp_servers:
+
+mcp_servers:
+  # Claw Graph — tool/resource catalog in Neo4j
+  claw-graph:
+    command: node
+    args:
+    - ~/.hermes/plugins/claw-neo4j/mcp-server.mjs
+    enabled: true
+
+  # Education Graph — knowledge entities in Neo4j
+  education-graph:
+    command: node
+    args:
+    - ~/.hermes/config/mcp/education-graph/mcp/education-server.mjs
+    env:
+      NEO4J_URI: bolt://localhost:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: changeme
+      GRAPH_TOOL_DIR: ~/.hermes/config/mcp/education-graph/python
+      PYTHON_BIN: python3
+    enabled: true
+
+  # Codebase Graph — repository structure in Neo4j
+  codebase-graph:
+    command: node
+    args:
+    - ~/.hermes/config/mcp/education-graph/mcp/codebase-server.mjs
+    env:
+      NEO4J_URI: bolt://localhost:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: changeme
+    enabled: false
+
+  # Graph Tool — hybrid search + graph ops
+  graph-tool:
+    command: node
+    args:
+    - ~/.hermes/config/mcp/education-graph/mcp/search.js
+    env:
+      NEO4J_URI: bolt://localhost:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: changeme
+    enabled: true
+
+  # Searchbox — 15 web search engines
+  searchbox:
+    command: docker
+    args:
+    - exec
+    - -i
+    - openwebui-searchbox
+    - node
+    - /app/searchbox-mcp.js
+    enabled: true

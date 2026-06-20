@@ -1,0 +1,285 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "doom_loop": "ask"
+  },
+  "provider": {
+    "litellm": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "LiteLLM (llama + LM Studio)",
+      "options": {
+        "baseURL": "http://127.0.0.1:4000/v1",
+        "apiKey": "sk-local"
+      },
+      "models": {
+        "tvall43-qwen3.6-35b-a3b-heretic": {
+          "name": "Qwen3.6 tvall43 (LM Studio)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        },
+        "qwen3.6-35b-heretic": {
+          "name": "Qwen3.6 llmfan46 MTP (llama.cpp)",
+          "limit": {
+            "context": 262144,
+            "output": 32768
+          }
+        },
+        "gemma-4-26b-a4b-it-ultra-uncensored-heretic": {
+          "name": "Gemma 4 26B (LM Studio)",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          }
+        },
+        "gemma-4-26b-a4b-it-ultra-uncensored-heretic-llama": {
+          "name": "Gemma 4 26B (llama.cpp host)",
+          "limit": {
+            "context": 131072,
+            "output": 32768
+          }
+        },
+        "deepseek-chat": {
+          "name": "DeepSeek V4 Flash — chat (non-thinking)",
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          }
+        },
+        "deepseek-reasoner": {
+          "name": "DeepSeek V4 Flash — reasoner (thinking)",
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          }
+        },
+        "deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          }
+        },
+        "deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "limit": {
+            "context": 1000000,
+            "output": 384000
+          }
+        },
+        "gpt-4.1": {
+          "name": "GPT-4.1 (OpenAI)",
+          "limit": {
+            "context": 1000000,
+            "output": 32768
+          }
+        },
+        "gpt-4.1-mini": {
+          "name": "GPT-4.1 Mini (OpenAI)",
+          "limit": {
+            "context": 1000000,
+            "output": 32768
+          }
+        },
+        "gpt-4.1-nano": {
+          "name": "GPT-4.1 Nano (OpenAI)",
+          "limit": {
+            "context": 1000000,
+            "output": 32768
+          }
+        },
+        "gpt-4o": {
+          "name": "GPT-4o (OpenAI)",
+          "limit": {
+            "context": 128000,
+            "output": 16384
+          }
+        },
+        "gpt-4o-mini": {
+          "name": "GPT-4o Mini (OpenAI)",
+          "limit": {
+            "context": 128000,
+            "output": 16384
+          }
+        },
+        "gpt-5.5-pro-2026-04-23": {
+          "name": "GPT-5.5 Pro (OpenAI)",
+          "limit": {
+            "context": 200000,
+            "output": 32768
+          }
+        }
+      }
+    }
+  },
+  "model": "litellm/tvall43-qwen3.6-35b-a3b-heretic",
+  "small_model": "litellm/qwen3.6-35b-heretic",
+  "mcp": {
+    "claw-graph": {
+      "type": "local",
+      "command": [
+        "node",
+        "opencode+/plugins/claw-neo4j/mcp-server.mjs"
+      ],
+      "env": {
+        "NEO4J_URI": "bolt://127.0.0.1:7687",
+        "NEO4J_USER": "neo4j",
+        "NEO4J_PASSWORD": "changeme",
+        "NEO4J_DATABASE": "neo4j",
+        "NEO4J_ENABLED": "1"
+      }
+    }
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true,
+    "reserved": 162144
+  },
+  "agent": {
+    "plan": {
+      "mode": "primary",
+      "description": "Orchestrator agent — coordinates sub-agents through 10-phase lifecycle. Manages task distribution, context flow, and quality gates. Full stack knowledge: llama.cpp, LiteLLM, OpenCode web, profiles, MTP, Phoenix.",
+      "model": "litellm/qwen3.6-35b-heretic",
+      "options": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        }
+      },
+      "permission": {
+        "edit": "ask",
+        "bash": "ask",
+        "read": "allow",
+        "grep": "allow",
+        "glob": "allow",
+        "list": "allow",
+        "task": "allow",
+        "webfetch": "allow",
+        "websearch": "allow"
+      },
+      "prompt": "You are the Orchestrator for OpenCode+. Read configs/orchestrator.md for your full operating instructions. Key points:\n\n**You do NOT write code or run bash yourself.** You delegate every phase to sub-agents via the `task` tool.\n\n**Stack:** llama.cpp (:8092, MTP) → LiteLLM (:4000) → OpenCode web (:3400). Profiles in opencode+/configs/profiles/. Workspace isolation in ~/dev/codemes/{pid}/.\n\n**Lifecycle:** 10 phases. Entry/exit contract per phase. Context flows between phases. Quality gates at transitions. Never skip a phase silently.\n\n**Tools:** task (delegate), read/grep/glob/list (verify), webfetch/websearch (research). edit/bash only for reality checks (curl health, git diff, grep for required sections).\n\n**Failure:** retry once, then with context, then escalate to user."
+    },
+    "build": {
+      "mode": "primary",
+      "description": "Full development agent — edit + bash allowed",
+      "model": "litellm/qwen3.6-35b-heretic",
+      "options": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        }
+      }
+    },
+
+    "summary": {
+      "model": "litellm/qwen3.6-35b-heretic",
+      "options": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        }
+      }
+    },
+    "deep-explore": {
+      "mode": "primary",
+      "description": "Deep code research with extended reasoning. Use for non-trivial 'how does X work?' / 'why is Y broken?' questions.",
+      "model": "litellm/qwen3.6-35b-heretic",
+      "options": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        }
+      },
+      "permission": {
+        "edit": "deny",
+        "bash": "deny"
+      }
+    },
+    "claw": {
+      "mode": "primary",
+      "description": "Stateless skill/MCP compactor. One-shot pipeline (discover → classify → detect → draft → log → exit). Never reads its own log or summaries.",
+      "model": "litellm/qwen3.6-35b-heretic",
+      "temperature": 0.1,
+      "options": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        }
+      },
+      "permission": {
+        "read": {
+          "**": "allow",
+          "opencode+/opencode_claw/.compactor/log.jsonl": "deny",
+          "opencode+/opencode_claw/.compactor/summaries/**": "deny"
+        },
+        "edit": {
+          "**": "deny",
+          "opencode+/opencode_claw/.compactor/log.jsonl": "allow",
+          "opencode+/opencode_claw/.compactor/summaries/*.md": "allow",
+          "opencode+/opencode_claw/.compactor/registry/*.json": "allow",
+          "opencode+/opencode_claw/.compactor/drafts/**": "allow",
+          "opencode+/opencode_claw/.compactor/sessions/**": "allow",
+          "opencode+/opencode_claw/.compactor/knowledge/**": "allow"
+        },
+        "grep": "allow",
+        "glob": "allow",
+        "list": "allow",
+        "bash": "ask",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny"
+      },
+      "prompt": "You are `claw`, the stateless compactor for skills and MCP integrations.\n\n**Read [`opencode+/opencode_claw/AGENTS.md`](../../opencode+/opencode_claw/AGENTS.md) before any action.** It defines the operating envelope, the five compaction axes (`merge` / `prune` / `collapse` / `rebudget` / `mcp-dedupe`), the pipeline, the schemas (including §12 checkpoint/knowledge schemas), the redact list, and the acceptance tests. Treat it as authoritative.\n\n## Hard invariants\n\n- You **may never** read `opencode+/opencode_claw/.compactor/log.jsonl` or any file under `opencode+/opencode_claw/.compactor/summaries/`. These belong to the user and to `composter`. Reading them would entrench past mistakes — this is the entire point of the stateless-writer design.\n- Do not rely on auto-compaction checkpoints. `claw` persists discovery through `registry/integrations.<ts>.json` and immediate Neo4j sync. You may read the cross-session fact base at `opencode+/opencode_claw/.compactor/knowledge/**` when present, but `sessions/**` is no longer part of the normal `claw` resume path.\n- You **may never** edit anything outside `opencode+/opencode_claw/.compactor/`. `.ai/skills/` is read-only for you. Propose changes as drafts only.\n- Every entry you append to `log.jsonl` MUST validate against [`opencode+/opencode_claw/schemas/compaction-action.schema.json`](../../opencode+/opencode_claw/schemas/compaction-action.schema.json) and MUST cite at least one `path:line` evidence anchor.\n- Every record you write to `registry/integrations.<ts>.json` MUST validate against [`opencode+/opencode_claw/schemas/integration-record.schema.json`](../../opencode+/opencode_claw/schemas/integration-record.schema.json). Redact secret values per AGENTS.md §4 before writing.\n- Every discovered integration MUST be shaped for Neo4j `Tool` projection. Preserve these fields whenever evidence supports them: `tool_dir`, `name`, `description`, `type`, `target`, `mcp_usage`, `endpoint`, `c_layer`, `linux_layer`, `confirmations`, `status`, `evidence`, `_reserved`. The required core is `id`, `tool_dir`, `name`, `description`, `type`, `target`, `mcp_usage`.\n- `knowledge/*.json` is append-only and owned by the [`claw-compactor`](../../opencode+/plugins/claw-compactor/index.js) plugin — never overwrite it.\n- One session = one pipeline pass = exit. Do not loop. Do not read your prior outputs to \"improve\" the proposal.\n\n## Seed and resume\n\nAt the start of every session:\n\n1. Read `opencode+/opencode_claw/.compactor/knowledge/{tool-catalog,prospect-index,a2a-acp-index}.json` if present to **seed discovery** — these are confirmed and candidate tools observed in prior sessions; treat them as inputs to scanners, not as outputs.\n2. When MCP **`claw-graph`** is registered and Neo4j is up, call **`search_tools`** with keywords from the user intent (see AGENTS.md §13) to skip already-known tool `id`s before running scanners. Fall back to `knowledge/` only if the graph is unreachable.\n\n## Default workflow\n\n1. **Establish scan scope.** Run `pwd` once at session start.\n   - If the result is `/`, you are in opencode's \"global\" project — your scan\n     surface is the **entire host**. Run BOTH the project-relative scanners\n     in AGENTS.md §4 AND the host-wide scanners listed below §4. Do **not**\n     restrict yourself to `/home/user/cursor/first` just because the\n     runbook and the `claw-compactor` plugin live there.\n   - Otherwise (`/home/user/cursor/first` or some other project root),\n     scan that worktree only.\n   - Always pass **absolute paths** to `bash` and `read`. Even with `cwd=/`,\n     relative paths resolve unpredictably across tools.\n2. Discover (run scanners from AGENTS.md §4 + host-wide scanners when worktree=`/`; seed from `knowledge/` and optional Neo4j `search_tools`).\n3. Classify (rules first per AGENTS.md §5; LLM only as tie-break).\n4. Detect candidates across the five axes.\n5. Draft artifacts under `.compactor/drafts/<op-id>/`.\n6. Append one JSON line per candidate to `log.jsonl`; append a section to `summaries/YYYY-MM-DD.md`.\n7. **Persist discovery** — write `opencode+/opencode_claw/.compactor/registry/integrations.<ts>.json` even for `discover only`. Do not rely on auto-compaction checkpoints as the primary storage path.\n8. **Sync to Neo4j immediately** — run `node opencode+/plugins/claw-neo4j/sync-from-compactor.js --session <current_sid> --registry <path-to-integrations.json>` from `/home/user/cursor/first` after every registry snapshot. If Neo4j is unreachable, record the skip in the summary with the exact error and keep the registry authoritative.\n9. **Verify graph projection** — after sync, report `MATCH (t:Tool) RETURN count(t)` and the registry record count. If the counts differ, explain which records were rejected or could not be projected.\n10. Print the path to today's summary and exit.\n\n## Host-wide discovery (when `pwd` == `/`)\n\nHit at least these absolute paths breadth-first before going deep:\n\n- `/usr/local/bin`, `/usr/bin`, `/bin`, `/sbin`, `/opt` — executables, agent CLIs.\n- `/etc/systemd/system/`, `~/.config/systemd/user/` — installed services.\n- `/etc/opencode*`, `/etc/claude*`, `/etc/mcp*` — system-wide agent configs.\n- `~/.config/opencode/`, `~/.cache/opencode/`, `~/.local/share/opencode/`, `~/.claude/`, `~/.opencode/` — user agent state.\n- `/home/*` (one level), then `find /home -maxdepth 5` for `AGENTS.md`, `SKILL.md`, `mcp*.json`, `*.service`.\n- `docker ps` and `systemctl list-units --type=service --all --no-pager` — running state.\n\nIf a path returns `EACCES` (e.g. `/root`), record it as `evidence: \"EACCES\"` in the registry instead of dropping it; surface it for the user to retry with `sudo` if needed.\n\nOnce you have collected host-wide hits, THEN dive into specific project\nworktrees (`/home/user/cursor/first`, `/home/user/cursor/*`, etc.) for\nthe project-relative scanners.\n\nIf the user asks \"compact X\" but you have not yet read AGENTS.md this session, refuse and read it first.\n"
+    },
+    "composter": {
+      "mode": "primary",
+      "description": "Stateful read-only reader of the compactor audit trail. Explains compaction history, proposes rollbacks as diffs, never modifies anything.",
+      "model": "litellm/tvall43-qwen3.6-35b-a3b-heretic",
+      "temperature": 0.2,
+      "options": {
+        "chat_template_kwargs": {
+          "enable_thinking": true
+        }
+      },
+      "permission": {
+        "read": "allow",
+        "edit": "deny",
+        "grep": "allow",
+        "glob": "allow",
+        "list": "allow",
+        "bash": "ask",
+        "task": "deny",
+        "webfetch": "deny",
+        "websearch": "deny"
+      },
+      "prompt": "You are `composter`, the read-only audit-trail reader for skill/MCP compaction.\n\nRead opencode+/opencode_claw/AGENTS.md for the data model, schemas, and constraints (including §12 on checkpoints and knowledge). Your inputs are the on-disk artifacts under opencode+/opencode_claw/.compactor/: log.jsonl (append-only journal, schema: schemas/compaction-action.schema.json), summaries/YYYY-MM-DD.md (daily human-readable digests), drafts/<op-id>/ (proposed artifacts awaiting human review), registry/integrations.<ts>.json (discovery snapshots, schema: schemas/integration-record.schema.json), sessions/<sid>/checkpoint.<n>.json + plan.json (per-session plugin checkpoints, schema: schemas/checkpoint.schema.json), and knowledge/{tool-catalog,prospect-index,a2a-acp-index}.json (cross-session append-only fact base, append-only; schemas in schemas/).\n\nHard invariants:\n- You may NOT write or edit anything. permission.edit is deny globally.\n- You may NOT run a new compaction. If the user asks 'compact X', direct them to /agents claw and explain the pipeline from AGENTS.md §3.\n- You may NOT invent history. Cite every claim with path:line anchors resolved from the journal entry's evidence[] or from checkpoint.tools_found[].evidence[].\n- You MAY propose rollbacks as unified diffs in chat, but you cannot apply them. The user (or a separate claw session, opening a new action with op:'rollback') does the apply.\n- You operate from on-disk artifacts only. Network access is denied (webfetch: deny, websearch: deny).\n\nDefault behaviours:\n- 'explain --since 7d' → group entries from log.jsonl by day, summarise each op, link to the matching summaries/YYYY-MM-DD.md section. When mentioning tools, prefer knowledge/tool-catalog.json (cross-session) over scanning sessions/<other>/ (which is operationally off-limits for cross-session reasoning).\n- 'explain action <id>' → load the entry, resolve every evidence anchor (read those line ranges and quote them), show the linked draft if any.\n- 'propose rollback <id>' → produce a unified diff that would undo the action, plus a draft log entry with op: 'rollback' and targets: ['<id>']. Print but do not write.\n- 'show drift' → diff the latest registry/integrations.<latest>.json AND the latest knowledge/tool-catalog.json against what you would expect from the current compose.*.yml and opencode MCP config (read-only — no scanners run).\n\nWhen in doubt, prefer quoting raw journal lines or checkpoint summaries over paraphrasing."
+    }
+  },
+  "plugin": [
+    [
+      "opencode+/plugins/step-reviewer",
+      {
+        "interval": 10,
+        "historySize": 30,
+        "model": "litellm/qwen3.6-35b-heretic"
+      }
+    ],
+    [
+      "opencode+/plugins/claw-compactor",
+      {
+        "tokenThreshold": 100000,
+        "agents": [
+          "composter"
+        ],
+        "dir": "opencode+/opencode_claw/.compactor",
+        "model": "litellm/qwen3.6-35b-heretic",
+        "neo4j": {
+          "enabled": true,
+          "uri": "bolt://127.0.0.1:7687",
+          "user": "neo4j",
+          "password": "changeme",
+          "database": "neo4j"
+        }
+      }
+    ]
+  ],
+  "autoshare": false,
+  "autoupdate": false,
+  "share": "disabled"
+}

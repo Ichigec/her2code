@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opencode-plus.local/schemas/integration-record.schema.json",
+  "title": "IntegrationRecord",
+  "description": "One row in the integrations registry produced by `claw discover`. Mirrors PLAN.md §4.3. A registry snapshot is a JSON object {\"records\": [IntegrationRecord, ...], \"discovered_at\": <ts>} stored at opencode+/opencode_claw/.compactor/registry/integrations.<ts>.json (local-only, gitignored).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "source",
+    "type",
+    "discovered_at",
+    "evidence"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable dotted id, e.g. `mcp.searchbox`, `compose.service.litellm`, `skill.research`, `env.OPENCODE_*`.",
+      "pattern": "^[a-z][a-z0-9._-]+$"
+    },
+    "source": {
+      "type": "string",
+      "description": "Repo-relative path of the file the scanner read to produce this record."
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "mcp",
+        "compose-service",
+        "skill",
+        "env",
+        "script",
+        "doc",
+        "llm-model",
+        "lsp",
+        "adapter",
+        "agent"
+      ],
+      "description": "Kind of integration. Drives downstream classification rules."
+    },
+    "c_layer": {
+      "type": "string",
+      "enum": ["C0", "C1", "C2", "C3", "C4"],
+      "description": "Architecture layer (see opencode+/docs/architecture-c1-c4.md). Optional — assigned by classify step."
+    },
+    "linux_layer": {
+      "type": "string",
+      "enum": [
+        "L0", "L1", "L2", "L3", "L4", "L5",
+        "L6", "L7", "L8", "L9", "L10", "L11", "L12"
+      ],
+      "description": "Linux-boot taxonomy layer (see PLAN.md §2). Optional — assigned by classify step."
+    },
+    "endpoint": {
+      "type": "string",
+      "description": "URL or unix socket where this integration is reachable. `null` if not network-addressable."
+    },
+    "depends_on": {
+      "type": "array",
+      "description": "Other integration ids this one needs at boot time.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9._-]+$"
+      }
+    },
+    "tools": {
+      "type": "array",
+      "description": "MCP tools advertised by this integration. Empty when not an MCP server or when not yet probed.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "namespace": { "type": "string" },
+          "schema_ref": { "type": "string" }
+        }
+      }
+    },
+    "config_keys": {
+      "type": "array",
+      "description": "Env keys the integration reads. SECRET-like values MUST be redacted; only the key name is recorded. See AGENTS.md §4 redact rules.",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]*$"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["configured", "running", "stale", "unknown"],
+      "description": "Live state at discovery time. `running` requires evidence from the `health`/`process` scanner."
+    },
+    "skill_id": {
+      "type": ["string", "null"],
+      "description": "Linked skill in `.ai/skills/` if any. `null` flags this record as a gap (Phase 2 candidate)."
+    },
+    "discovered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "description": "HARD constraint: at least one `path:line` (or `path:line-range`) anchor in the repo. Without evidence the record is rejected.",
+      "items": {
+        "type": "string",
+        "pattern": "^[^:\\s][^\\s]*:\\d+(-\\d+)?$"
+      }
+    },
+    "tool_dir": {
+      "type": "string",
+      "description": "Directory of executable, MCP root, or compose service context (see tool-node.schema.json)."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name; defaults to MCP tools[].name or id suffix when omitted."
+    },
+    "description": {
+      "type": "string",
+      "description": "From SKILL.md, compose labels, or MCP server description."
+    },
+    "target": {
+      "type": "string",
+      "description": "filesystem | web | llm | agents | host | database | …"
+    },
+    "mcp_usage": {
+      "type": "string",
+      "description": "JSON string: MCP tools/list surface (inputSchema, annotations)."
+    },
+    "_reserved": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Reserved for future health/cost metadata; synced to Neo4j Tool._reserved_json."
+    }
+  }
+}
