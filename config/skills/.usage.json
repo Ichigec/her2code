@@ -532,19 +532,6 @@
     "use_count": 67,
     "view_count": 67
   },
-  "pavel-environment": {
-    "archived_at": null,
-    "created_at": "2026-06-07T13:36:45.325407+00:00",
-    "created_by": "agent",
-    "last_patched_at": "2026-06-19T00:25:29.723562+00:00",
-    "last_used_at": "2026-06-19T00:25:32.323541+00:00",
-    "last_viewed_at": "2026-06-19T00:25:32.309322+00:00",
-    "patch_count": 53,
-    "pinned": false,
-    "state": "active",
-    "use_count": 44,
-    "view_count": 44
-  },
   "plan": {
     "archived_at": null,
     "created_at": "2026-06-09T19:19:29.811375+00:00",

@@ -35,7 +35,7 @@ xdg-open http://127.0.0.1:3400
 | Qwen GGUF + mmproj | пути в `../.env.llamacpp` |
 | llama.cpp с MTP | `llama-server --help \| grep draft-mtp` |
 
-Скрипты llama подхватывают `${HOME}` из `.env.llamacpp` и при запуске **от root** автоматически используют home владельца репозитория (`/home/user/...`). Предпочтительно: `sudo -u pavel bash opencode+/rebuild-llama-mtp.sh`.
+Скрипты llama подхватывают `${HOME}` из `.env.llamacpp` и при запуске **от root** автоматически используют home владельца репозитория (`/home/user/...`). Предпочтительно: `sudo -u user bash opencode+/rebuild-llama-mtp.sh`.
 
 Скопируйте опциональные override:
 

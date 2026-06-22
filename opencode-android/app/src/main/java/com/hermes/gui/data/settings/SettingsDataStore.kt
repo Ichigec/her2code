@@ -29,7 +29,7 @@ data class AppSettings(
 ) {
     companion object {
         const val DEFAULT_API_URL = "http://<YOUR_VPS_IP>:8643"
-        const val DEFAULT_API_KEY = "tfpq7h9sUcrCjyFU3VuqAeq-IEpKT6Q6SgnC9iVQ5BPVJrRv"
+        const val DEFAULT_API_KEY = "***"
     }
 }
 

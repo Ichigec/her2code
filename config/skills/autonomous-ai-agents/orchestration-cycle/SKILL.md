@@ -444,7 +444,7 @@ subagents that don't need batch mode, Kimi remains a viable fallback.
 
 ### GPT-5.5 quota exhaustion
 
-All spawns with gpt-5.5 return `insufficient_quota`. The `sk-proj-...` key
+All spawns with gpt-5.5 return `insufficient_quota`. The `sk-proj-DELETED...` key
 associated with the custom:openai provider has exhausted quota. Do NOT route
 any agents to gpt-5.5 without first verifying quota.
 

@@ -107,7 +107,7 @@ See `SANITIZATION_LOG.md` for the complete list. Summary:
 | Database contents | 5 DBs | Schema-only |
 | Session data | 47 files | Deleted |
 | Log files | 15 files | Deleted |
-| Personal skill | 1 | `pavel-environment` removed |
+| Personal skill | 1 | `user-environment` removed |
 | VPN config | 1 | `sing-box-vpn-setup.md` removed |
 
 ## License

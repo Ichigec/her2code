@@ -35,7 +35,7 @@ from .security_validator import SecurityValidator, SecurityResult, Severity
 class EducationConfig:
     neo4j_uri: str = field(default_factory=lambda: os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687"))
     neo4j_user: str = field(default_factory=lambda: os.getenv("NEO4J_USER", "neo4j"))
-    neo4j_password: str = field(default_factory=lambda: os.getenv("NEO4J_PASSWORD", "changeme"))
+    neo4j_password: str = field(default_factory=lambda: os.getenv("NEO4J_PASSWORD", ""))
     education_database: str = field(default_factory=lambda: os.getenv("EDUCATION_DATABASE", "education"))
     entity_similarity_threshold: float = 0.85  # cosine threshold for entity merge
     embedding_model: str = "all-MiniLM-L6-v2"

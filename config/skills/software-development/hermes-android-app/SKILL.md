@@ -420,7 +420,7 @@ Bash watchdog надёжнее Python-аналогов (paramiko не форва
 while true; do
     if ! ssh -o ConnectTimeout=5 root@<YOUR_VPS_IP> "curl -s --max-time 3 http://127.0.0.1:8643/health | grep -q ok"; then
         # Kill stale tunnels
-        for pid in $(pgrep -f "ssh.*-R.*8643.*64.188"); do kill "$pid" 2>/dev/null; done
+        for pid in $(pgrep -f "ssh.*-R.*8643.****"); do kill "$pid" 2>/dev/null; done
         # Clean VPS stale sessions
         ssh -o ConnectTimeout=5 root@<YOUR_VPS_IP> \
             "ss -tlnp | grep 8643 | grep -oP 'pid=\K\d+' | xargs -r kill" 2>/dev/null

@@ -12,7 +12,7 @@ from pathlib import Path
 from collections import defaultdict
 
 NEO4J_URL = "http://127.0.0.1:7474/db/neo4j/tx/commit"
-NEO4J_AUTH = ("neo4j", "changeme")
+NEO4J_AUTH = ("neo4j", os.getenv("NEO4J_PASSWORD", ""))
 STATE_FILE = Path.home() / ".hermes" / "skills" / ".curator_state"
 ARTIFACTS_ROOT = Path.home() / "dev" / "codemes"
 

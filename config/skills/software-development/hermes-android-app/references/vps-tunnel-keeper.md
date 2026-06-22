@@ -26,7 +26,7 @@ while true; do
     if ! ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no \
         root@<YOUR_VPS_IP> "curl -s --max-time 3 http://127.0.0.1:8643/health | grep -q ok" 2>/dev/null; then
         # Tunnel dead — cleanup and restart
-        for pid in $(pgrep -f "ssh.*-R.*8643.*64.188"); do
+        for pid in $(pgrep -f "ssh.*-R.*8643.****"); do
             kill "$pid" 2>/dev/null
         done
         ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no root@<YOUR_VPS_IP> \

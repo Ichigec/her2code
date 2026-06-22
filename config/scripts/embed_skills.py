@@ -19,7 +19,7 @@ def get_embedding(text: str) -> list:
     return data["data"][0]["embedding"]
 
 def main():
-    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "changeme"))
+    driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", os.getenv("NEO4J_PASSWORD", "")))
 
     # Create vector index
     with driver.session() as s:

@@ -7,3 +7,8 @@
 # OS files
 .DS_Store
 Thumbs.db
+opencode-android/
+opencode-plus/
+db/
+infra/
+status-proxy.py

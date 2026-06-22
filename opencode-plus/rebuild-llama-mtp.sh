@@ -30,7 +30,7 @@ Clone first:
   git clone https://github.com/ggml-org/llama.cpp "$LLAMA_CPP_DIR"
 
 Or run as the repo owner (recommended):
-  sudo -u pavel bash $OPENCODE_PLUS_DIR/rebuild-llama-mtp.sh
+  sudo -u user bash $OPENCODE_PLUS_DIR/rebuild-llama-mtp.sh
 EOF
     exit 1
 fi

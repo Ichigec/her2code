@@ -28,7 +28,7 @@ from neo4j import GraphDatabase, Driver
 class Neo4jConfig:
     uri: str = field(default_factory=lambda: os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687"))
     user: str = field(default_factory=lambda: os.getenv("NEO4J_USER", "neo4j"))
-    password: str = field(default_factory=lambda: os.getenv("NEO4J_PASSWORD", "changeme"))
+    password: str = field(default_factory=lambda: os.getenv("NEO4J_PASSWORD", ""))
     database: str = field(default_factory=lambda: os.getenv("NEO4J_DATABASE", "neo4j"))
 
 

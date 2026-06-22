@@ -12,12 +12,12 @@ Type=oneshot
 RemainAfterExit=yes
 
 User=user
-Group=pavel
+Group=user
 WorkingDirectory=/home/user/cursor/first/opencode+
 
 Environment=HOME=/home/user
-Environment=USER=pavel
-Environment=LOGNAME=pavel
+Environment=USER=user
+Environment=LOGNAME=user
 Environment=PATH=/home/user/.local/bin:/home/user/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 Environment=XDG_RUNTIME_DIR=/run/user/1000
 

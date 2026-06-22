@@ -1,6 +1,6 @@
 # OpenCode+ systemd unit
 
-Системный сервис `opencode-plus.service` запускает **только agent (web UI на `:3400`)** от пользователя `pavel`. `llama.cpp` автоматически **не** стартует — её поднимаешь руками, когда нужна:
+Системный сервис `opencode-plus.service` запускает **только agent (web UI на `:3400`)** от пользователя `user`. `llama.cpp` автоматически **не** стартует — её поднимаешь руками, когда нужна:
 
 ```bash
 bash /home/user/cursor/first/opencode+/start-llama-qwen.sh --daemon
@@ -91,7 +91,7 @@ sudo systemctl daemon-reload
 
 - `Type=oneshot` + `RemainAfterExit=yes` — `start-opencode.sh` делает `nohup opencode web … &` и завершается; PID web хранится в `opencode+/.run/opencode-web.pid`. Systemd считает сервис «active» после успешного выхода `ExecStart`.
 - `ExecStop` зовёт `stop-opencode.sh` — гасит web по PID-файлу и, если запущен Docker-контейнер `opencode`, его тоже.
-- `User=user`, `Group=pavel`, `WorkingDirectory=/home/user/cursor/first/opencode+`, `HOME=/home/user`.
+- `User=user`, `Group=user`, `WorkingDirectory=/home/user/cursor/first/opencode+`, `HOME=/home/user`.
 - `After=network-online.target docker.service`, без `Requires=docker.service` — opencode поднимется даже если docker недоступен. Docker нужен только когда руками включишь LiteLLM-профиль.
 - LLM не проверяется жёстко: если `http://127.0.0.1:8092/v1` не отвечает, в логе будет warning, но web всё равно стартует — UI будет ругаться на пустые ответы, пока не запустишь `llama.cpp`.
 

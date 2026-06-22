@@ -50,7 +50,7 @@
 - **Real Hermes Gateway API key** (`tfpq7h9s...`) in `skills/software-development/hermes-android-app/references/hermes-gateway-api-setup.md` → excluded via manifest
 
 ### High (fixed)
-- **7 Telegram MTProto proxy secrets** in `skills/pavel-environment/references/telegram-proxies.md` → excluded for public variant
+- **7 Telegram MTProto proxy secrets** in `skills/user-environment/references/telegram-proxies.md` → excluded for public variant
 
 ### Medium (accepted)
 - 50+ files with `/home/user` paths in skill documentation → accepted (skills reference the developer's environment)

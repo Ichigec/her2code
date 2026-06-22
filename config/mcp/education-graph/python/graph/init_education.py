@@ -18,7 +18,7 @@ from neo4j import GraphDatabase, Driver
 def get_driver() -> Driver:
     return GraphDatabase.driver(
         os.getenv("NEO4J_URI", "bolt://127.0.0.1:7687"),
-        auth=(os.getenv("NEO4J_USER", "neo4j"), os.getenv("NEO4J_PASSWORD", "changeme")),
+        auth=(os.getenv("NEO4J_USER", "neo4j"), os.getenv("NEO4J_PASSWORD", "")),
     )
 
 

@@ -2,7 +2,7 @@
 ' =============================================================================
 ' Hermes Stack — Sequence Diagram: User → Hermes Agent → LLM → Tools → Response
 ' Shows the complete interaction lifecycle for a typical agent request.
-' PID: pavel_20260619_200039
+' PID: her2code
 ' Date: 2026-06-19
 ' =============================================================================
 

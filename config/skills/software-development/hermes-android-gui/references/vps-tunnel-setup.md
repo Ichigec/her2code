@@ -57,7 +57,7 @@ while true; do
         # Clean stale sessions ON VPS before starting new tunnel
         ssh root@<YOUR_VPS_IP> "ss -tlnp | grep 8643 | grep -oP 'pid=\K\d+' | xargs -r kill"
         # Kill local zombie tunnels (explicit PID, not pkill)
-        for pid in $(pgrep -f "ssh.*-R.*8643.*64.188"); do kill "$pid" 2>/dev/null; done
+        for pid in $(pgrep -f "ssh.*-R.*8643.*VPS_IP_PREFIX"); do kill "$pid" 2>/dev/null; done
         sleep 1
         # Start fresh
         ssh -fN -o StrictHostKeyChecking=no -o ServerAliveInterval=5 \
@@ -69,7 +69,7 @@ done
 
 ### Pitfall: pkill killing the terminal
 `pkill -f "ssh.*8643"` can match the SSH command in the CURRENT terminal pipeline.
-Use explicit `pgrep -f "ssh.*-R.*8643.*64.188"` with the `-R` flag in the pattern to be specific.
+Use explicit `pgrep -f "ssh.*-R.*8643.*VPS_IP_PREFIX"` with the `-R` flag in the pattern to be specific.
 Or better: iterate `for pid in $(pgrep ...); do kill $pid; done` — safe, explicit kill per PID.
 
 ## Testing cellular from the agent's side

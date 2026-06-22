@@ -40,7 +40,7 @@ performs well on management tasks.
 
 ## GPT-5.5 — REMOVED (quota)
 
-$10/1M output. Quota exhausted on `sk-proj-...Cr8A`. No longer usable.
+$10/1M output. Quota exhausted on `sk-proj-DELETED...Cr8A`. No longer usable.
 
 ## Local models (llama.cpp)
 
