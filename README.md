@@ -110,6 +110,11 @@ See `SANITIZATION_LOG.md` for the complete list. Summary:
 | Personal skill | 1 | `user-environment` removed |
 | VPN config | 1 | `sing-box-vpn-setup.md` removed |
 
+## Android App 🚧
+
+Android-приложение для Hermes Agent находится в разработке.
+Репозиторий:  (будет добавлен позже).
+
 ## License
 
 MIT — see LICENSE file.
