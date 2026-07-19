@@ -1,8 +1,8 @@
-# Hermes Portable v4
+# her2code — агентный пайплайн на базе Hermes
 
-**Self-contained AI agent distribution** — 33 agents, 132 skills, dual-arch (ARM64 + x64).
+**Сильно доработанный AI-агентный пайплайн** — 33 агента, 132 навыка, 14 quality gates, dual-arch (ARM64 + x64).
 
-Version: **Hermes Agent v0.16.0** | License: MIT | [Full Description](DESCRIPTION.md)
+Построен на [Hermes Agent](https://github.com/NousResearch/hermes-agent) v0.16.0 (Nous Research, MIT License).
 
 ## Quick Start
 
