@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Portable v4 — Презентация проекта</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
+<style>
+  .reveal h1 { font-size: 2.2em; color: #64ffda; }
+  .reveal h2 { color: #82b1ff; }
+  .reveal h3 { color: #b388ff; }
+  .reveal .small { font-size: 0.7em; }
+  .reveal .tag { display:inline-block; background:#333; color:#64ffda; padding:2px 8px; border-radius:4px; font-size:0.6em; margin:2px; }
+  .reveal table { font-size: 0.65em; margin: 0 auto; }
+  .reveal table th { background: #1a237e; color: #fff; }
+  .reveal table td { border-bottom: 1px solid #333; }
+  .reveal pre { font-size: 0.5em; }
+  .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size:0.6em; }
+  .arch-box { background: #1a1a2e; border: 1px solid #333; border-radius: 8px; padding: 15px; }
+  .arch-box h3 { margin:0 0 10px 0; }
+  .stat { font-size: 1.5em; color: #64ffda; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- TITLE -->
+<section>
+  <h1>Hermes Portable v4</h1>
+  <p>Автономная AI-агентная платформа</p>
+  <p class="small">Nous Research · v0.16.0 · Июль 2026</p>
+  <p class="small">Open-source (MIT) · Dual-arch (ARM64 + x86_64)</p>
+</section>
+
+<!-- PROBLEM -->
+<section>
+  <h2>Проблема</h2>
+  <p>Современная разработка требует<br>координации десятков AI-агентов</p>
+  <div class="arch-grid">
+    <div class="arch-box">
+      <h3>Без Hermes</h3>
+      <p>❌ Каждый агент — изолированный чат</p>
+      <p>❌ Нет общей памяти</p>
+      <p>❌ Ручная передача контекста</p>
+      <p>❌ Повторение ошибок</p>
+    </div>
+    <div class="arch-box">
+      <h3>С Hermes</h3>
+      <p>✅ 33 агента в одной среде</p>
+      <p>✅ Общая память + Neo4j</p>
+      <p>✅ Автоматическая оркестрация</p>
+      <p>✅ Накопление навыков (skills)</p>
+    </div>
+  </div>
+</section>
+
+<!-- SOLUTION OVERVIEW -->
+<section>
+  <h2>Hermes Portable v4</h2>
+  <p>Самодостаточный AI-агентный дистрибутив</p>
+  <br>
+  <div style="display:flex;justify-content:center;gap:40px;">
+    <div><span class="stat">33</span><br>агента</div>
+    <div><span class="stat">132</span><br>навыка</div>
+    <div><span class="stat">14</span><br>гейтов</div>
+    <div><span class="stat">3.2</span><br>GB</div>
+  </div>
+  <br>
+  <p class="small">Один USB-накопитель → любая Linux-машина → рабочий AI-агент</p>
+</section>
+
+<!-- ARCHITECTURE -->
+<section>
+  <h2>Архитектура</h2>
+  <img src="ARCHITECTURE.svg" style="width:85%; background:#fff; border-radius:8px; padding:10px;">
+  <p class="small">Docker-контейнеры (gateway + dashboard) · Авто-определение ARM64/x64</p>
+</section>
+
+<!-- HOW IT WORKS -->
+<section>
+  <h2>Как это работает</h2>
+  <div style="font-size:0.7em; text-align:left;">
+    <p><b>1.</b> Пользователь → GUI (Electron) или CLI (curl)</p>
+    <p><b>2.</b> Запрос → Dashboard (:9123) → Gateway (:18649)</p>
+    <p><b>3.</b> Gateway строит system prompt (память + навыки + инструменты)</p>
+    <p><b>4.</b> LLM-модель генерирует ответ / tool calls</p>
+    <p><b>5.</b> Инструменты исполняются (терминал, файлы, веб, браузер)</p>
+    <p><b>6.</b> Хуки проверяют результат</p>
+    <p><b>7.</b> Наблюдатели анализируют качество</p>
+    <p><b>8.</b> Успешные паттерны → навыки (skills)</p>
+  </div>
+</section>
+
+<!-- AGENTS: ORCHESTRATORS -->
+<section>
+  <h2>Агенты: Оркестраторы</h2>
+  <table>
+    <tr><th>Агент</th><th>Описание</th></tr>
+    <tr><td><b>plan1</b></td><td>GLM-4.7 оркестратор + DeepSeek-исполнители</td></tr>
+    <tr><td><b>plan2</b></td><td>5 исследователей параллельно, Pre-Flight Gate</td></tr>
+    <tr><td><b>plan3</b></td><td>3 модели: Qwen3.6 + Nex + AgentWorld</td></tr>
+    <tr><td><b>plan4</b></td><td>DiffusionGemma 26B — одна модель для всего</td></tr>
+    <tr><td><b>aflow-orch</b></td><td>MCTS-поиск оптимального workflow</td></tr>
+    <tr><td><b>observer-orch</b></td><td>Координирует 4 наблюдателя</td></tr>
+  </table>
+</section>
+
+<!-- AGENTS: ANALYSTS -->
+<section>
+  <h2>Агенты: Аналитика</h2>
+  <table>
+    <tr><th>Агент</th><th>Функция</th></tr>
+    <tr><td><b>requirements-agent</b></td><td>Сбор требований (BACCM, SMART)</td></tr>
+    <tr><td><b>system-analyst</b></td><td>Системный анализ (5 Whys, goal tree)</td></tr>
+    <tr><td><b>researcher</b></td><td>Глубокий поиск, создание sub-агентов</td></tr>
+    <tr><td><b>deep-plan-researcher</b></td><td>3-фазный пайплайн с гейтами</td></tr>
+    <tr><td><b>architect-agent</b></td><td>Проектирование архитектуры</td></tr>
+    <tr><td><b>techlead-agent</b></td><td>StandardWork, ownership, dependency audit</td></tr>
+  </table>
+</section>
+
+<!-- AGENTS: DEVS + OBSERVERS -->
+<section>
+  <h2>Агенты: Разработка и контроль</h2>
+  <div class="arch-grid">
+    <div class="arch-box">
+      <h3>Разработчики</h3>
+      <p><b>dev-creative</b> — нестандартные решения</p>
+      <p><b>dev-pragmatic</b> — промышленный стиль</p>
+      <p><b>dev-skeptic</b> — KISS extreme</p>
+      <p><b>dev-maverick</b> — ломает правила</p>
+      <p><b>developer-agent</b> — упёртый</p>
+    </div>
+    <div class="arch-box">
+      <h3>Наблюдатели</h3>
+      <p><b>auditor</b> — качество процесса</p>
+      <p><b>critic</b> — поиск over-engineering</p>
+      <p><b>idea-generator</b> — новые идеи</p>
+      <p><b>knowledge-curator</b> — Neo4j-граф знаний</p>
+      <p><b>jidoka-evaluator</b> — авто-остановка дефектов</p>
+    </div>
+  </div>
+</section>
+
+<!-- QUALITY GATES -->
+<section>
+  <h2>Система Quality Gates</h2>
+  <p>14 гейтов на 10 фаз — deny-by-default (OPA-модель)</p>
+  <table>
+    <tr><th>Фаза</th><th>Гейт</th><th>Авто</th></tr>
+    <tr><td>0 Bootstrap</td><td>FS, AGENTS.md, venv, Python</td><td>✅</td></tr>
+    <tr><td>1 Requirements</td><td>BACCM, NFR, acceptance criteria</td><td>—</td></tr>
+    <tr><td>3 Research</td><td>Searchbox, Neo4j health</td><td>⚡</td></tr>
+    <tr><td>5.5 Pre-Flight</td><td>Контракты, порты, env vars</td><td>✅</td></tr>
+    <tr><td>7 Security</td><td>SAST: bandit, gitleaks, semgrep</td><td>✅</td></tr>
+    <tr><td>8 Deployment</td><td>Target, permissions, Docker</td><td>—</td></tr>
+    <tr><td>8.5 Acceptance</td><td>Tests, traceability matrix</td><td>—</td></tr>
+    <tr><td>10 Iterate</td><td>Observer-отчёты, AFlow</td><td>—</td></tr>
+  </table>
+  <p class="small">✅ авто · ⚡ частично · — шаблон</p>
+</section>
+
+<!-- SKILLS -->
+<section>
+  <h2>Навыки (Skills) — процедурная память</h2>
+  <p>132 SKILL.md — агент учится и запоминает</p>
+  <div class="arch-grid">
+    <div class="arch-box">
+      <h3>Категории</h3>
+      <p>🧠 autonomous-ai-agents (8)</p>
+      <p>🔧 software-development (22)</p>
+      <p>📊 data-science (2)</p>
+      <p>🎨 creative (10)</p>
+      <p>🔬 research (6)</p>
+      <p>🔒 security (3)</p>
+      <p>🚀 deployment (5)</p>
+      <p>📝 writing (1)</p>
+    </div>
+    <div class="arch-box">
+      <h3>Примеры</h3>
+      <p><b>hermes-distribution-packaging</b><br>Упаковка и санитизация дистрибутивов</p>
+      <p><b>systematic-debugging</b><br>4-фазный root-cause анализ</p>
+      <p><b>architecture-design</b><br>Совместное проектирование</p>
+      <p><b>test-driven-development</b><br>RED-GREEN-REFACTOR цикл</p>
+    </div>
+  </div>
+</section>
+
+<!-- SANITIZATION -->
+<section>
+  <h2>Санитизация — нулевое PII</h2>
+  <table>
+    <tr><th>Категория</th><th>Статус</th></tr>
+    <tr><td>API-ключи (sk-*)</td><td>✅ 0</td></tr>
+    <tr><td>IP-адреса</td><td>✅ 0</td></tr>
+    <tr><td>Домашние пути (/home/pavel/)</td><td>✅ 0</td></tr>
+    <tr><td>Идентификаторы устройств</td><td>✅ 0</td></tr>
+    <tr><td>Базы данных (state.db)</td><td>✅ исключены</td></tr>
+    <tr><td>Файлы памяти (memories/)</td><td>✅ исключены</td></tr>
+    <tr><td>Observer-состояние</td><td>✅ исключены</td></tr>
+  </table>
+  <br>
+  <p>1,299 файлов скопировано · 328 санитизировано · <b>0 персональных данных</b></p>
+</section>
+
+<!-- QUICK START -->
+<section>
+  <h2>Быстрый старт</h2>
+  <pre><code># 1. Клонировать
+git clone git@github.com:Ichigec/her2code.git && cd her2code
+
+# 2. Скачать бинарные файлы (из Releases)
+# → https://github.com/Ichigec/her2code/releases/tag/v4.0.0
+
+# 3. Загрузить Docker-образ
+docker load -i hermes-agent-arm64.tar.gz  # или x64
+
+# 4. Распаковать GUI
+tar xzf gui-arm64.tar.gz  # или x64
+
+# 5. Настроить LLM-ключ
+cp .env.example .env && nano .env
+
+# 6. Запустить!
+./start-backend.sh && ./launch.sh</code></pre>
+  <p class="small">Требования: Linux (ARM64/x64) · Docker 20.10+ · curl · python3 · 5 GB</p>
+</section>
+
+<!-- USE CASES -->
+<section>
+  <h2>Сценарии использования</h2>
+  <div class="arch-grid">
+    <div class="arch-box">
+      <h3>Разработка ПО</h3>
+      <p>Полный цикл: требования → архитектура → код → тесты → деплой</p>
+      <p>5 стилей разработки (creative…maverick)</p>
+      <p>Quality gates на каждом этапе</p>
+    </div>
+    <div class="arch-box">
+      <h3>Исследования</h3>
+      <p>3-фазный пайплайн с верификацией</p>
+      <p>Claw-граф для связывания знаний</p>
+      <p>Neo4j для персистентности</p>
+    </div>
+    <div class="arch-box">
+      <h3>DevOps / Аудит</h3>
+      <p>SAST-проверки (bandit, gitleaks, semgrep)</p>
+      <p>Авто-деплой с health-check</p>
+      <p>4 наблюдателя за качеством</p>
+    </div>
+    <div class="arch-box">
+      <h3>Обучение</h3>
+      <p>132 навыка — накопленный опыт</p>
+      <p>AGENTS.md — конвенции проекта</p>
+      <p>DESCRIPTION.md — документация</p>
+    </div>
+  </div>
+</section>
+
+<!-- LINKS -->
+<section>
+  <h2>Ссылки</h2>
+  <p>📦 <b>GitHub:</b> github.com/Ichigec/her2code</p>
+  <p>📥 <b>Release:</b> github.com/Ichigec/her2code/releases/tag/v4.0.0</p>
+  <p>📖 <b>Документация:</b> DESCRIPTION.md (284 строки)</p>
+  <p>🏗️ <b>Архитектура:</b> ARCHITECTURE.svg</p>
+  <br>
+  <p class="small">Hermes Agent v0.16.0 · Nous Research · MIT License</p>
+  <p class="small">Сборка дистрибутива: 2026-07-19</p>
+</section>
+
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script>Reveal.initialize({hash:true,slideNumber:true,transition:'slide',width:1200,height:800});</script>
+</body>
+</html>
