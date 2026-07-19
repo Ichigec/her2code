@@ -17,7 +17,7 @@ git clone git@github.com:Ichigec/her2code.git && cd her2code
 ./start-backend.sh
 
 # 4. Configure LLM key
-cp .env.example .env && nano .env  # uncomment one LLM provider key
+cp .env.example .env               # или добавь ключи через GUI после запуска
 
 # 5. Launch GUI
 ./launch.sh
