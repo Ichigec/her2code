@@ -63,6 +63,21 @@ User → GUI (Electron) → Dashboard (:9123) → Gateway (:18649) → LLM Provi
   └── CLI (curl) ──────────────────────────────────────────────►  DeepSeek/...)
 ```
 
+## Оркестраторы
+
+Выбор оркестратора через `/agent` в GUI или CLI:
+
+| Оркестратор | Модели | Статус |
+|-------------|--------|:------:|
+| **plan2** | DeepSeek V4 (аналитика) + GLM (исполнители) | ✅ **Рекомендуемый** |
+| plan3 | Qwen3.6 + Nex + AgentWorld (3 модели) | 🧪 Экспериментальный |
+| plan4 | DiffusionGemma (1 модель) | 🧪 Экспериментальный |
+| plan1 | GLM (оркестратор) + DeepSeek | ⚠️ Устаревший |
+
+> **plan2 — наиболее работоспособный.** Полный цикл: требования → анализ → research →
+> архитектура → план → pre-flight gate → progressive dev (4 стадии эскалации) →
+> security SAST → деплой → приёмка. 5 стилей разработки, 4 наблюдателя.
+
 ## Sanitization
 
 This distribution contains **zero** API keys, personal data, or session state:
