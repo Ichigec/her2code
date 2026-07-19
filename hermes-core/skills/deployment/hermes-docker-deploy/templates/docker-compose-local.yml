@@ -1,0 +1,124 @@
+# Hermes Docker — LOCAL source code mounted (patches persist across restarts)
+# Both dashboard + gateway overlay baked-in image code with local source.
+# Edits to ~/.hermes/hermes-agent/ are instantly live in both containers.
+#
+# Project name: hermes-local
+# Usage:
+#   docker compose -p hermes-local -f docker-compose-local.yml up -d
+#   docker compose -p hermes-local -f docker-compose-local.yml down
+#
+# ⚠️ Container recreation (down+up) is needed when changing volumes.
+#    `docker restart` alone does NOT apply new bind mounts.
+# ⚠️ s6 chown on ARM64 takes 2-5 min PER container. Two containers = 4-10 min.
+# ⚠️ YAML anchors DON'T work for volume arrays — duplicate the list explicitly.
+
+services:
+  # ── Gateway: API server + messaging backend ──
+  gateway:
+    image: hermes-agent
+    container_name: hermes-gateway
+    hostname: <YOUR_HOSTNAME>
+    network_mode: host
+    restart: unless-stopped
+    entrypoint: ["/init", "/opt/hermes/docker/main-wrapper.sh"]
+    command: ["gateway", "run"]
+    environment:
+      HERMES_HOME: /opt/data
+      HERMES_UID: "1000"
+      HERMES_GID: "1000"
+      HERMES_DISABLE_MESSAGING: "1"
+      HERMES_WEB_DIST: /opt/hermes/hermes_cli/web_dist
+      HERMES_TUI_DIR: /opt/hermes/ui-tui
+      API_SERVER_HOST: "0.0.0.0"
+      API_SERVER_PORT: "18649"
+      API_SERVER_KEY: <GENERATE_WITH: openssl rand -hex 32>
+      GATEWAY_ALLOW_ALL_USERS: "true"
+      PYTHONUNBUFFERED: "1"
+      npm_config_install_links: "false"
+    volumes:
+      # Gateway has its OWN data dir (separate config, providers, state.db)
+      # ⚠️ Do NOT share with dashboard — s6-log lock crash-loop!
+      - /home/user/.hermes-portable:/opt/data
+      # ── LOCAL SOURCE CODE (read-write bind mounts) ──
+      # Same volume list as dashboard — edits to local files are instantly live
+      - /home/user/.hermes/hermes-agent/agent:/opt/hermes/agent
+      - /home/user/.hermes/hermes-agent/hermes_cli:/opt/hermes/hermes_cli
+      - /home/user/.hermes/hermes-agent/tui_gateway:/opt/hermes/tui_gateway
+      - /home/user/.hermes/hermes-agent/tools:/opt/hermes/tools
+      - /home/user/.hermes/hermes-agent/gateway:/opt/hermes/gateway
+      - /home/user/.hermes/hermes-agent/cron:/opt/hermes/cron
+      - /home/user/.hermes/hermes-agent/plugins:/opt/hermes/plugins
+      - /home/user/.hermes/hermes-agent/acp_adapter:/opt/hermes/acp_adapter
+      - /home/user/.hermes/hermes-agent/providers:/opt/hermes/providers
+      - /home/user/.hermes/hermes-agent/run_agent.py:/opt/hermes/run_agent.py
+      - /home/user/.hermes/hermes-agent/cli.py:/opt/hermes/cli.py
+      - /home/user/.hermes/hermes-agent/model_tools.py:/opt/hermes/model_tools.py
+      - /home/user/.hermes/hermes-agent/toolsets.py:/opt/hermes/toolsets.py
+      - /home/user/.hermes/hermes-agent/hermes_state.py:/opt/hermes/hermes_state.py
+      - /home/user/.hermes/hermes-agent/hermes_constants.py:/opt/hermes/hermes_constants.py
+      - /home/user/.hermes/hermes-agent/hermes_logging.py:/opt/hermes/hermes_logging.py
+      - /home/user/.hermes/hermes-agent/hermes_time.py:/opt/hermes/hermes_time.py
+      - /home/user/.hermes/hermes-agent/batch_runner.py:/opt/hermes/batch_runner.py
+      - /home/user/.hermes/hermes-agent/utils.py:/opt/hermes/utils.py
+      - /home/user/.hermes/hermes-agent/trajectory_compressor.py:/opt/hermes/trajectory_compressor.py
+      - /home/user/.hermes/hermes-agent/hermes_bootstrap.py:/opt/hermes/hermes_bootstrap.py
+      - /home/user/.hermes/hermes-agent/toolset_distributions.py:/opt/hermes/toolset_distributions.py
+      - /home/user/.hermes/hermes-agent/mcp_serve.py:/opt/hermes/mcp_serve.py
+      - /home/user/.hermes/hermes-agent/mini_swe_runner.py:/opt/hermes/mini_swe_runner.py
+      - /home/user/.hermes/hermes-agent/setup.py:/opt/hermes/setup.py
+      - /home/user/.hermes/hermes-agent/skills:/opt/hermes/skills
+
+  # ── Dashboard: web UI + TUI backend ──
+  dashboard:
+    image: hermes-agent:latest
+    container_name: hermes-dashboard
+    hostname: <YOUR_HOSTNAME>
+    network_mode: host
+    restart: unless-stopped
+    entrypoint: ["/init", "/opt/hermes/docker/main-wrapper.sh"]
+    command: ["dashboard", "--host", "127.0.0.1", "--port", "9123", "--insecure", "--tui", "--no-open", "--skip-build"]
+    environment:
+      HERMES_HOME: /opt/data
+      HERMES_UID: "1000"
+      HERMES_GID: "1000"
+      HERMES_WEB_DIST: /opt/hermes/hermes_cli/web_dist
+      HERMES_TUI_DIR: /opt/hermes/ui-tui
+      GATEWAY_HEALTH_URL: http://127.0.0.1:18649/health
+      PYTHONUNBUFFERED: "1"
+      npm_config_install_links: "false"
+      HERMES_DASHBOARD_SESSION_TOKEN: ${HERMES_DASHBOARD_SESSION_TOKEN:-sk-docker-b}
+    volumes:
+      # Data volume — SHARED with local Hermes (~/.hermes)
+      # Same state.db, WAL files, config, profiles as local desktop app
+      # Chats appear in BOTH local desktop app and Docker dashboard
+      - /home/user/.hermes:/opt/data
+      # ── LOCAL SOURCE CODE (read-write bind mounts) ──
+      # Identical list to gateway above
+      - /home/user/.hermes/hermes-agent/agent:/opt/hermes/agent
+      - /home/user/.hermes/hermes-agent/hermes_cli:/opt/hermes/hermes_cli
+      - /home/user/.hermes/hermes-agent/tui_gateway:/opt/hermes/tui_gateway
+      - /home/user/.hermes/hermes-agent/tools:/opt/hermes/tools
+      - /home/user/.hermes/hermes-agent/gateway:/opt/hermes/gateway
+      - /home/user/.hermes/hermes-agent/cron:/opt/hermes/cron
+      - /home/user/.hermes/hermes-agent/plugins:/opt/hermes/plugins
+      - /home/user/.hermes/hermes-agent/acp_adapter:/opt/hermes/acp_adapter
+      - /home/user/.hermes/hermes-agent/providers:/opt/hermes/providers
+      - /home/user/.hermes/hermes-agent/run_agent.py:/opt/hermes/run_agent.py
+      - /home/user/.hermes/hermes-agent/cli.py:/opt/hermes/cli.py
+      - /home/user/.hermes/hermes-agent/model_tools.py:/opt/hermes/model_tools.py
+      - /home/user/.hermes/hermes-agent/toolsets.py:/opt/hermes/toolsets.py
+      - /home/user/.hermes/hermes-agent/hermes_state.py:/opt/hermes/hermes_state.py
+      - /home/user/.hermes/hermes-agent/hermes_constants.py:/opt/hermes/hermes_constants.py
+      - /home/user/.hermes/hermes-agent/hermes_logging.py:/opt/hermes/hermes_logging.py
+      - /home/user/.hermes/hermes-agent/hermes_time.py:/opt/hermes/hermes_time.py
+      - /home/user/.hermes/hermes-agent/batch_runner.py:/opt/hermes/batch_runner.py
+      - /home/user/.hermes/hermes-agent/utils.py:/opt/hermes/utils.py
+      - /home/user/.hermes/hermes-agent/trajectory_compressor.py:/opt/hermes/trajectory_compressor.py
+      - /home/user/.hermes/hermes-agent/hermes_bootstrap.py:/opt/hermes/hermes_bootstrap.py
+      - /home/user/.hermes/hermes-agent/toolset_distributions.py:/opt/hermes/toolset_distributions.py
+      - /home/user/.hermes/hermes-agent/mcp_serve.py:/opt/hermes/mcp_serve.py
+      - /home/user/.hermes/hermes-agent/mini_swe_runner.py:/opt/hermes/mini_swe_runner.py
+      - /home/user/.hermes/hermes-agent/setup.py:/opt/hermes/setup.py
+      - /home/user/.hermes/hermes-agent/skills:/opt/hermes/skills
+    depends_on:
+      - gateway

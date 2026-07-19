@@ -1,0 +1,76 @@
+# ═══════════════════════════════════════════════════════════════
+# Hermes Agent — Docker Compose (Variant A)
+# ═══════════════════════════════════════════════════════════════
+# Simple gateway + dashboard. For full stack (LiteLLM, Neo4j, etc.)
+# use: ./start.sh full
+#
+# Usage:
+#   docker compose -f docker/docker-compose.yml up -d
+#   # or via start.sh:
+#   ./start.sh compose
+# ═══════════════════════════════════════════════════════════════
+
+services:
+  hermes:
+    build: ${HERMES_BUILD_CTX:-../../.hermes/hermes-agent}
+    image: ${HERMES_IMAGE:-hermes-agent}
+    container_name: hermes-gateway
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ${HERMES_HOME:-~/.hermes-docker}:/opt/data
+    environment:
+      - HERMES_UID=${HERMES_UID:-1000}
+      - HERMES_GID=${HERMES_GID:-1000}
+      - API_SERVER_HOST=0.0.0.0
+      - API_SERVER_PORT=${PORT_GW:-18648}
+      - "API_SERVER_KEY=${API_SERVER_KEY:-sk-local}"
+      - GATEWAY_ALLOW_ALL_USERS=true
+      - HERMES_DISABLE_MESSAGING=1
+      # LLM keys — passed from .env (never hardcode!)
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:${PORT_GW:-18648}/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 180s
+    command:
+      - gateway
+      - run
+
+  dashboard:
+    image: ${HERMES_IMAGE:-hermes-agent}
+    container_name: hermes-dashboard
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      hermes:
+        condition: service_healthy
+    volumes:
+      - ${HERMES_HOME:-~/.hermes-docker}:/opt/data
+    environment:
+      - HERMES_UID=${HERMES_UID:-1000}
+      - HERMES_GID=${HERMES_GID:-1000}
+      - HERMES_DASHBOARD_SE..._TOKEN=${DASH_TOKEN:-sk-docker-b}
+      - PYTHONPATH=/opt/data
+      - GATEWAY_HEALTH_URL=http://127.0.0.1:${PORT_GW:-18648}/health
+    command:
+      - dashboard
+      - --host
+      - 127.0.0.1
+      - --port
+      - "${PORT_DASH:-9121}"
+      - --insecure
+      - --tui
+      - --no-open
+      - --skip-build
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:${PORT_DASH:-9121}/api/status || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s

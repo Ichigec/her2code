@@ -1,0 +1,85 @@
+{
+  "log": {
+    "level": "warn",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      { "type": "udp", "tag": "dns-google", "server": "8.8.8.8" },
+      { "type": "udp", "tag": "dns-cf",    "server": "1.1.1.1" }
+    ],
+    "strategy": "ipv4_only"
+  },
+  "inbounds": [
+    {
+      "type": "vless",
+      "tag": "vless-reality-in",
+      "listen": "::",
+      "listen_port": 443,
+      "users": [
+        {
+          "name": "main",
+          "uuid": "FILL_ME_UUID",
+          "flow": "xtls-rprx-vision"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "www.microsoft.com",
+        "reality": {
+          "enabled": true,
+          "handshake": {
+            "server": "www.microsoft.com",
+            "server_port": 443
+          },
+          "private_key": "FILL_ME_PRIVATE_KEY",
+          "short_id": [
+            "FILL_ME_SHORT_ID_1",
+            "FILL_ME_SHORT_ID_2",
+            "FILL_ME_SHORT_ID_3"
+          ],
+          "max_time_difference": "5m"
+        }
+      }
+    },
+    {
+      "type": "hysteria2",
+      "tag": "hysteria2-in",
+      "listen": "::",
+      "listen_port": 9443,
+      "up_mbps": 100,
+      "down_mbps": 100,
+      "users": [
+        {
+          "name": "main",
+          "password": "FILL_ME_HY2_PASSWORD"
+        }
+      ],
+      "tls": {
+        "enabled": true,
+        "server_name": "www.microsoft.com",
+        "certificate_path": "/etc/sing-box/certs/hy2-cert.pem",
+        "key_path": "/etc/sing-box/certs/hy2-key.pem",
+        "alpn": ["h3"],
+        "min_version": "1.3"
+      },
+      "obfs": {
+        "type": "salamander",
+        "password": "FILL_ME_SALAMANDER_PASSWORD"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ],
+  "route": {
+    "final": "direct",
+    "default_domain_resolver": {
+      "server": "dns-google",
+      "strategy": "ipv4_only"
+    }
+  }
+}

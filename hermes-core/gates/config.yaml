@@ -1,0 +1,175 @@
+# ── Gate Runner Configuration ──────────────────────────────────────────────
+# ~/.hermes/gates/config.yaml
+# ЕДИНЫЙ конфиг — пороги, режимы, зависимости, таймауты.
+
+# Project detection: file markers → project type
+project_detection:
+  python:
+    - "pyproject.toml"
+    - "setup.py"
+    - "requirements.txt"
+  kotlin:
+    - "build.gradle.kts"
+    - "build.gradle"
+  typescript:
+    - "tsconfig.json"
+    - "package.json"
+
+# History DB
+history:
+  db_path: "~/.hermes/gate_history.db"
+  retention_days: 90
+  max_runs_per_cycle: 200
+
+# Output limits
+output:
+  evidence_max_chars: 500
+  diagnostic_max_chars: 400
+
+# ── Per-Gate Configuration ─────────────────────────────────────────────────
+
+gates:
+  build-gate:
+    enabled: true
+    threshold: 1.0
+    timeout: 300
+
+  test-gate:
+    enabled: true
+    threshold: 1.0
+    timeout: 600
+
+  coverage-gate:
+    enabled: true
+    threshold: 0.80
+    per_file_threshold: 0.60
+    timeout: 600
+
+  security-gate:
+    enabled: true
+    threshold: 1.0
+    timeout: 300
+    tools:
+      bandit: true
+      semgrep: true
+      gitleaks: true
+      pip_audit: true
+    allow_medium: false
+
+  integration-gate:
+    enabled: true
+    threshold: 1.0
+    timeout: 30
+    neo4j_uri: "bolt://localhost:7687"
+    neo4j_user: "neo4j"
+    neo4j_password: "changeme"
+
+  business-analysis-gate:
+    enabled: true        # ignored — always mandatory
+    threshold: 1.0
+    timeout: 5
+
+  acceptance-gate:
+    enabled: true
+    threshold: 1.0
+    timeout: 120
+    base_url: "http://localhost:8000"
+
+  deployment-gate:
+    enabled: true
+    threshold: 1.0
+    timeout: 30
+    health_endpoint: "/health"
+
+  capability-gate:
+    enabled: true
+    threshold: 0.80
+    timeout: 30
+    mandatory: true
+    live_probes: true
+    task_inference: true
+
+# ── Dependency Graph (DAG) ─────────────────────────────────────────────────
+#
+# Определяет порядок выполнения гейтов и параллелизацию.
+# Каждый уровень — список гейтов, которые можно запустить параллельно.
+# Зависимости разрешаются автоматически через depends_on атрибуты гейтов.
+
+# ── Modes ───────────────────────────────────────────────────────────────────
+# Меняют ГЛУБИНУ проверок, но НЕ отключают гейты.
+# business-analysis-gate ВСЕГДА полный режим независимо от mode.
+
+modes:
+  speed:
+    build-gate:
+      incremental: true
+    test-gate:
+      incremental: true
+    coverage-gate:
+      check_changed_only: true
+    security-gate:
+      tools:
+        bandit: true
+        semgrep: false
+        gitleaks: false
+        pip_audit: false
+      incremental: true
+    integration-gate:
+      full: true
+    acceptance-gate:
+      base_url: "http://localhost:8000"  # mandatory — will FAIL if no service
+    deployment-gate:
+      enabled: false
+    capability-gate:
+      live_probes: false
+      task_inference: false
+
+  balanced:
+    build-gate:
+      incremental: false
+    test-gate:
+      incremental: false
+    coverage-gate:
+      threshold: 0.80
+    security-gate:
+      tools:
+        bandit: true
+        semgrep: true
+        gitleaks: true
+        pip_audit: false
+    integration-gate:
+      full: true
+    acceptance-gate:
+      enabled: true
+    deployment-gate:
+      enabled: true
+    capability-gate:
+      live_probes: true
+      task_inference: false
+
+  quality:
+    build-gate:
+      incremental: false
+    test-gate:
+      incremental: false
+      runs: 3
+    coverage-gate:
+      threshold: 0.90
+      per_file_threshold: 0.70
+    security-gate:
+      tools:
+        bandit: true
+        semgrep: true
+        gitleaks: true
+        pip_audit: true
+    integration-gate:
+      full: true
+      contract_check: true
+    acceptance-gate:
+      enabled: true
+      retries: 2
+    deployment-gate:
+      enabled: true
+    capability-gate:
+      live_probes: true
+      task_inference: true

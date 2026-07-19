@@ -1,0 +1,6 @@
+name: routing-enforcer
+version: "1.0.0"
+description: "Pre-delegation hook that enforces model routing. Blocks delegate_task calls with wrong model/provider per role."
+author: "Hermes Agent"
+hooks:
+  - pre_tool_call

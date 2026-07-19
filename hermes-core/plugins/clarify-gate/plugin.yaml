@@ -1,0 +1,4 @@
+name: clarify-gate
+version: 1.0.0
+description: "Blocks action tools until clarify() is called on ambiguous requests"
+author: Hermes Agent

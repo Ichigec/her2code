@@ -1,0 +1,45 @@
+#!/bin/bash
+# COMMIT-MSG HOOK — требует GatePassport в commit message.
+# Это делает обход через --no-verify БЕСПОЛЕЗНЫМ:
+# даже если pre-commit обойдён, commit-msg проверит паспорт.
+#
+# Установка: cp ~/.hermes/gates/hooks/commit-msg .git/hooks/commit-msg
+#            chmod +x .git/hooks/commit-msg
+
+COMMIT_MSG_FILE="$1"
+
+# Разрешённые bypass-паттерны
+if grep -qE '^(Merge |Initial commit|Revert )' "$COMMIT_MSG_FILE" 2>/dev/null; then
+    exit 0
+fi
+
+# Documents-only commits (no code changes — only .md, .txt, .yaml, .json)
+if git diff --cached --name-only 2>/dev/null | grep -qvE '\.(md|txt|yaml|yml|json|css|html)$'; then
+    HAS_CODE=1
+else
+    HAS_CODE=0
+fi
+
+# Ищем GatePassport:XXXXXXXX:XXXXXXXX в commit message
+if grep -qE 'GatePassport:[a-z0-9_]+:[a-f0-9]{16}' "$COMMIT_MSG_FILE"; then
+    exit 0
+fi
+
+# Для документов — разрешаем без паспорта
+if [ "$HAS_CODE" -eq 0 ]; then
+    exit 0
+fi
+
+echo ""
+echo "🚫 COMMIT BLOCKED: Missing GatePassport."
+echo ""
+echo "   Every code commit MUST include a valid GatePassport."
+echo "   Format: GatePassport:<cycle_id>:<hmac16>"
+echo ""
+echo "   To get a passport:"
+echo "     1. Run: python3 ~/.hermes/scripts/quality_gate_runner.py --json"
+echo "     2. Use: git commit (pre-commit hook generates it automatically)"
+echo ""
+echo "   Documents only? Use: GatePassport:docs:<sha256_of_changes>"
+echo ""
+exit 1

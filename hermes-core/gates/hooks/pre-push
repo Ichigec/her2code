@@ -1,0 +1,58 @@
+#!/bin/bash
+# PRE-PUSH HOOK — ПОЛНЫЙ прогон ВСЕХ gate'ов.
+# Блокирует push, если ЛЮБОЙ gate не прошёл.
+#
+# Установка: cp ~/.hermes/gates/hooks/pre-push .git/hooks/pre-push
+#            chmod +x .git/hooks/pre-push
+
+GATE_RUNNER="$HOME/.hermes/scripts/quality_gate_runner.py"
+PYTHON="$HOME/.hermes/hermes-agent/venv/bin/python3"
+WORKDIR="$(git rev-parse --show-toplevel 2>/dev/null || echo '.')"
+
+echo "🔒 Quality Gates (pre-push): ALL gates..."
+
+RESULT=$("$PYTHON" "$GATE_RUNNER" \
+    --json \
+    --mode balanced \
+    --workdir "$WORKDIR" 2>&1)
+
+VERDICT=$(echo "$RESULT" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('verdict','GATE_RUNNER_CRASHED'))" 2>/dev/null)
+
+if [ "$VERDICT" != "ALL_PASSED" ]; then
+    echo ""
+    echo "🚫 PUSH BLOCKED: Quality gates failed."
+    echo "   Verdict: $VERDICT"
+
+    echo "$RESULT" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+for g in d.get('gates', []):
+    if not g['passed']:
+        print(f\"   ❌ {g['gate_name']}\")
+        for c in g.get('checks', [])[:5]:
+            if not c['passed']:
+                print(f\"      └─ {c.get('description','')[:100]}\")
+" 2>/dev/null
+
+    exit 1
+fi
+
+# Сохраняем паспорт
+PASSPORT=$(echo "$RESULT" | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+p = d.get('passport', {})
+if p:
+    sig = p.get('hmac_signature', '')[:16]
+    cid = p.get('cycle_id', 'unknown')
+    print(f'GatePassport:{cid}:{sig}')
+" 2>/dev/null)
+
+if [ -n "$PASSPORT" ]; then
+    echo "$PASSPORT" > /tmp/last-gate-passport.txt
+    echo "✅ All gates passed. $PASSPORT"
+else
+    echo "✅ All gates passed (no passport — likely traceability-only run)."
+fi
+
+exit 0

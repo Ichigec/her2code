@@ -1,0 +1,9 @@
+name: observer-hook
+description: >
+  Observer hook — fires on every agent turn end. Writes structured
+  observations to Neo4j regardless of agent preset. Implements the
+  SDB contract (proposer → verifier → commit) for observer data.
+events:
+  - agent:end
+  - agent:start
+  - session:end

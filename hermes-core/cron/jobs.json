@@ -1,0 +1,119 @@
+{
+  "jobs": [
+    {
+      "id": "8d135a209243",
+      "name": "python3 /home/user/.hermes/scripts/knowledge-cura",
+      "prompt": "python3 /home/user/.hermes/scripts/knowledge-curator-ingest-llm.py",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 4 * * *",
+        "display": "0 4 * * *"
+      },
+      "schedule_display": "0 4 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 29
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-06-17T00:23:24.776927+03:00",
+      "next_run_at": "2026-07-20T04:00:00+03:00",
+      "last_run_at": "2026-07-19T04:03:46.644868+03:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": null,
+      "workdir": null,
+      "profile": null
+    },
+    {
+      "id": "8d4dd872e4aa",
+      "name": "claw-daily",
+      "prompt": "Run claw orchestration cycle: Phase 1 Discover \u2192 Phase 2 Process \u2192 Phase 3 Draft+Log \u2192 Phase 4 Neo4j Sync \u2192 Phase 5 Audit. Use agent claw-orchestrator.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "base_url": null,
+      "script": null,
+      "no_agent": false,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 2 * * *",
+        "display": "0 2 * * *"
+      },
+      "schedule_display": "0 2 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 30
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-06-17T23:12:19.153009+03:00",
+      "next_run_at": "2026-07-20T02:00:00+03:00",
+      "last_run_at": "2026-07-19T02:05:19.414644+03:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": "platform 'telegram' not configured/enabled",
+      "deliver": "telegram:<YOUR_TELEGRAM_CHAT_ID>",
+      "origin": null,
+      "enabled_toolsets": null,
+      "workdir": null,
+      "profile": null
+    },
+    {
+      "id": "08463a169fec",
+      "name": "knowledge-curator-v2-daily",
+      "prompt": "",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "base_url": null,
+      "script": "curator-daily.sh",
+      "no_agent": true,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 2 * * *",
+        "display": "0 2 * * *"
+      },
+      "schedule_display": "0 2 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 17
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-07-01T21:12:48.292845+03:00",
+      "next_run_at": "2026-07-20T02:00:00+03:00",
+      "last_run_at": "2026-07-19T02:02:27.283490+03:00",
+      "last_status": "error",
+      "last_error": "Script timed out after 120s: /home/user/.hermes/scripts/curator-daily.sh",
+      "last_delivery_error": null,
+      "deliver": "local",
+      "origin": null,
+      "enabled_toolsets": null,
+      "workdir": null,
+      "profile": null
+    }
+  ],
+  "updated_at": "2026-07-19T04:03:46.645091+03:00"
+}

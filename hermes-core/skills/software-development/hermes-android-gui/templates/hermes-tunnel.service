@@ -1,0 +1,15 @@
+[Unit]
+Description=SSH Reverse Tunnel VPS:8643 → localhost:8643
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c 'while true; do ssh -o StrictHostKeyChecking=no -o ServerAliveInterval=10 -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes -R 0.0.0.0:8643:localhost:8643 root@<YOUR_VPS_IP> "while true; do sleep 30; done"; echo "Tunnel died, retry in 5s"; sleep 5; done'
+Restart=on-failure
+RestartSec=10
+KillMode=process
+Delegate=yes
+
+[Install]
+WantedBy=default.target

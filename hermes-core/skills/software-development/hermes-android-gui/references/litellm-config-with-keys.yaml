@@ -1,0 +1,61 @@
+# LiteLLM config with API keys embedded directly (NOT relying on Docker env vars)
+# Env vars are LOST on container restart — always put keys in the config file.
+# Location: /home/user/dev/llama/litellm-config.yaml
+# Mounted into Docker: /app/config.yaml
+
+model_list:
+  # ── DeepSeek models (cloud) ──
+  - model_name: "deepseek-chat"
+    litellm_params:
+      model: "deepseek/deepseek-chat"
+      api_key: "<DEEPSEEK_API_KEY>"  # CRITICAL: env var not persistent in Docker
+
+  - model_name: "deepseek-reasoner"
+    litellm_params:
+      model: "deepseek/deepseek-reasoner"
+      api_key: "<DEEPSEEK_API_KEY>"
+
+  - model_name: "deepseek-v4-flash"
+    litellm_params:
+      model: "deepseek/deepseek-v4-flash"
+      api_key: "<DEEPSEEK_API_KEY>"
+
+  - model_name: "deepseek-v4-pro"
+    litellm_params:
+      model: "deepseek/deepseek-v4-pro"
+      api_key: "<DEEPSEEK_API_KEY>"
+
+  # ── GLM (z.ai, cloud) ──
+  - model_name: "glm-5.2"
+    litellm_params:
+      model: "openai/glm-5.2"
+      api_base: "https://api.z.ai/api/coding/paas/v4"
+      api_key: "<GLM_API_KEY>"
+
+  # ── GPT (cloud) ──
+  - model_name: "gpt-4.1"
+    litellm_params:
+      model: "openai/gpt-4.1"
+      api_key: "<OPENAI_API_KEY>"
+
+  - model_name: "gpt-4.1-mini"
+    litellm_params:
+      model: "openai/gpt-4.1-mini"
+      api_key: "<OPENAI_API_KEY>"
+
+  # ── Local vLLM models (no key needed) ──
+  - model_name: "diffusiongemma-abliterated"
+    litellm_params:
+      model: "openai/diffusiongemma-abliterated"
+      api_base: "http://localhost:8000/v1"
+      api_key: "not-needed"
+
+litellm_settings:
+  drop_params: false
+  request_timeout: 600
+
+general_settings:
+  master_key: "sk-local"
+
+# NOTE: DO NOT use os.environ/DEEPSEEK_API_KEY — Docker env vars don't survive restart.
+# ALWAYS put keys directly as api_key values in the config file.

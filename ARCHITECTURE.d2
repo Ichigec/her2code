@@ -1,0 +1,97 @@
+# Hermes Portable v4 — Architecture
+# Container diagram showing the runtime architecture
+
+direction: right
+
+legend: |md
+  **Hermes Portable v4 Architecture**
+  Auto-detect arch: ARM64 or x64
+  Ports: gateway=18649, dashboard=9123
+|
+
+# External actors
+user: "User" {
+  shape: person
+  style.fill: "#e8f5e9"
+  style.stroke: "#2e7d32"
+}
+
+llm: "LLM Provider\n(OpenRouter\n/Anthropic\n/DeepSeek)" {
+  shape: cylinder
+  style.fill: "#fff3e0"
+  style.stroke: "#e65100"
+}
+
+# Docker containers
+docker_layer: "Docker Containers (hermes-agent image)" {
+  style.fill: "#e3f2fd"
+  style.stroke: "#1565c0"
+
+  gateway: "Gateway (:18649)" {
+    style.fill: "#bbdefb"
+    style.stroke: "#0d47a1"
+  }
+
+  dashboard: "Dashboard (:9123)" {
+    style.fill: "#bbdefb"
+    style.stroke: "#0d47a1"
+  }
+
+  hermes_core: "hermes-core/\n(agents, skills,\nhooks, plugins)" {
+    shape: document
+    style.fill: "#c8e6c9"
+    style.stroke: "#388e3c"
+  }
+}
+
+# GUI
+gui: "Electron Desktop GUI\n(launch.sh)" {
+  shape: rectangle
+  style.fill: "#f3e5f5"
+  style.stroke: "#7b1fa2"
+}
+
+# CLI
+cli: "CLI Chat\n(chat.sh)" {
+  shape: rectangle
+  style.fill: "#eceff1"
+  style.stroke: "#37474f"
+}
+
+# Data volumes
+data_gw: "~/.hermes-portable/" {
+  shape: document
+  style.fill: "#fff9c4"
+  style.stroke: "#f57f17"
+}
+
+data_dash: "~/.hermes-portable-dash/" {
+  shape: document
+  style.fill: "#fff9c4"
+  style.stroke: "#f57f17"
+}
+
+# Docker images
+images: "docker/*.tar.gz\n(ARM64 + x64)" {
+  shape: document
+  style.fill: "#ffebee"
+  style.stroke: "#c62828"
+}
+
+# Connections
+user -> gui: "opens browser"
+user -> cli: "types commands"
+
+gui -> dashboard: "WebSocket\n/api/ws"
+dashboard -> gateway: "HTTP API"
+cli -> gateway: "curl /v1/chat/\ncompletions"
+
+gateway -> llm: "API calls"
+gateway -> hermes_core: "reads"
+dashboard -> hermes_core: "reads"
+
+images -> gateway: "docker load"
+images -> dashboard: "docker load"
+
+gateway -> data_gw: "mount"
+dashboard -> data_dash: "mount"

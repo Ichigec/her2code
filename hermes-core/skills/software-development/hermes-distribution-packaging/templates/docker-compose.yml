@@ -1,0 +1,76 @@
+# Docker Compose — Full Hermes Stack
+#
+# Usage:
+#   1. Copy config files:
+#      cp config/.env.docker .env
+#      cp config/config.yaml.example ~/.hermes/config.yaml
+#   2. Edit .env — add at least one API key
+#   3. Start:
+#      docker compose up -d
+#   4. Health check:
+#      curl http://localhost:8648/health
+#
+# What this starts:
+#   - hermes        : AI agent gateway + API server (port 8648)
+#   - hermes-dash   : Web dashboard (port 9119, localhost only)
+#   - neo4j         : Graph database (ports 7474, 7687)
+
+services:
+  # ── Hermes Agent Core ──────────────────────────────────
+  hermes:
+    build: ./hermes-agent
+    image: hermes-agent
+    container_name: hermes
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ~/.hermes:/opt/data
+      - ./config/mcp:/opt/hermes/config/mcp:ro
+      - ./config/plugins:/opt/hermes/config/plugins:ro
+      - ./config/skills:/opt/hermes/config/skills:ro
+      - ./config/agents:/opt/hermes/config/agents:ro
+      - ./config/hooks:/opt/hermes/config/hooks:ro
+      - ./config/scripts:/opt/hermes/config/scripts:ro
+    environment:
+      - HERMES_UID=${HERMES_UID:-10000}
+      - HERMES_GID=${HERMES_GID:-10000}
+      - API_SERVER_HOST=0.0.0.0
+      - API_SERVER_KEY=${API_SERVER_KEY:-sk-local}
+    command: ["gateway", "run"]
+
+  # ── Hermes Dashboard ──────────────────────────────────
+  dashboard:
+    image: hermes-agent
+    container_name: hermes-dashboard
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - hermes
+    volumes:
+      - ~/.hermes:/opt/data
+    environment:
+      - HERMES_UID=${HERMES_UID:-10000}
+      - HERMES_GID=${HERMES_GID:-10000}
+    command: ["dashboard", "--host", "127.0.0.1", "--no-open"]
+
+  # ── Neo4j — Knowledge Graph ───────────────────────────
+  neo4j:
+    image: neo4j:5-community
+    container_name: hermes-neo4j
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7474:7474"
+      - "127.0.0.1:7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:?Set NEO4J_PASSWORD}
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_server_memory_pagecache_size=512M
+      - NEO4J_server_memory_heap_initial__size=512M
+      - NEO4J_server_memory_heap_max__size=1G
+
+volumes:
+  neo4j_data:
+  neo4j_logs:

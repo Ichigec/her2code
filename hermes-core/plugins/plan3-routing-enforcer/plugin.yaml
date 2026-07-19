@@ -1,0 +1,6 @@
+name: plan3-routing-enforcer
+version: "1.0.0"
+description: "Pre-delegation hook that enforces plan3 model routing table. Blocks delegate_task calls with wrong model/provider per role (reasoning→agents-a1, coding→nex-n2-mini, simulation→agentworld)."
+author: "Pavel (via Hermes plan3 orchestrator)"
+hooks:
+  - pre_tool_call

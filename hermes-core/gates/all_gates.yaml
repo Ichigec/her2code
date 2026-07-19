@@ -1,0 +1,536 @@
+# Pre-Phase Gate Hook Protocol for plan2 Orchestrator
+# Each gate is a YAML file loaded by GatePluginRunner before phase entry.
+# Gates follow deny-by-default (OPA pattern): phase blocked unless explicitly allowed.
+
+# ═══════════════════════════════════════════════════════
+# GATE: bootstrap (Phase 0 entry)
+# ═══════════════════════════════════════════════════════
+gate: bootstrap
+phase: 0
+phase_name: "Project Bootstrap"
+policy: deny-by-default
+
+checks:
+  - id: BOOT-FS-WRITABLE
+    description: "Target isolation directory writable"
+    check: "test -w /home/user/dev/codemes/"
+    severity: BLOCKER
+    resolution: "mkdir -p if needed; report to user if FS read-only"
+
+  - id: BOOT-FS-SPACE
+    description: ">=100 MB free disk space"
+    check: "python3 -c \"import shutil; s=shutil.disk_usage('/home/user/dev/codemes/'); exit(0 if s.free > 100*1024*1024 else 1)\""
+    severity: CRITICAL
+    resolution: "Clean old projects in dev/codemes/; notify user if <50 MB"
+
+  - id: BOOT-AGENTS-MD
+    description: "AGENTS.md exists and non-empty"
+    check: "test -s $HERMES_HOME/AGENTS.md"
+    severity: BLOCKER
+    resolution: "Re-create from template; if missing, halt cycle"
+
+  - id: BOOT-REGISTRY
+    description: "Agent registry valid JSON"
+    check: "python3 -c \"import json; json.load(open('$HERMES_HOME/agents/registry.json')); print('OK')\""
+    severity: BLOCKER
+    resolution: "Run: python3 $HERMES_HOME/scripts/agent_registry.py"
+
+  - id: BOOT-CAPABILITY-INVENTORY
+    description: "Capability inventory loaded"
+    check: "python3 $HERMES_HOME/scripts/capability_gate.py --validate"
+    severity: BLOCKER
+    resolution: "Create/reinstall capability_inventory.yaml"
+
+  - id: BOOT-OBSERVER-SPAWN
+    description: "Observer spawn directory writable"
+    check: "test -w /tmp/"
+    severity: BLOCKER
+    resolution: "Fix /tmp/ permissions"
+
+  - id: BOOT-VENV
+    description: "Hermes Python venv exists"
+    check: "test -f /home/user/.hermes/hermes-agent/venv/bin/python3"
+    severity: CRITICAL
+    resolution: "Re-create venv: python3 -m venv $HERMES_HOME/hermes-agent/venv"
+
+  - id: BOOT-PYTHON
+    description: "Python3 available"
+    check: "which python3 >/dev/null 2>&1"
+    severity: BLOCKER
+    resolution: "Install python3"
+
+# ═══════════════════════════════════════════════════════
+# GATE: requirements (Phase 1 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: requirements
+phase: 1
+phase_name: "Requirements Analysis"
+policy: deny-by-default
+
+checks:
+  - id: REQ-BACCM-COMPLETE
+    description: "All 6 BACCM dimensions covered in task"
+    check: "echo '$TASK' | python3 -c \"import sys; t=sys.stdin.read().lower(); dims=['change','need','solution','stakeholder','value','context']; found=sum(1 for d in dims if d in t or any(kw in t for kw in {'change':'измен','need':'нужн','solution':'реш','stakeholder':'провер','value':'успех','context':'огранич'}.get(d,'').split('|'))); exit(0 if found>=3 else 1)\""
+    severity: HIGH
+    resolution: "Ask user via clarify for missing BACCM dimensions"
+
+  - id: REQ-AC-VERIFIABLE
+    description: "Acceptance criteria verifiable with available capabilities"
+    check: "true"  # Manual check by Requirements Analyst
+    severity: BLOCKER
+    resolution: "Replace unverifiable AC with structural check or delegate_to_user"
+
+  - id: REQ-NFR-MEASURABLE
+    description: "NFRs have measurement tools"
+    check: "true"
+    severity: CRITICAL
+    resolution: "Mark unmeasurable NFRs as DESIGN-INTENT"
+
+  - id: REQ-ARTIFACT-EXISTS
+    description: "Requirements artifact on disk"
+    check: "test -f docs/requirements/*.md"
+    severity: BLOCKER
+    resolution: "Re-run Requirements Analyst"
+
+# ═══════════════════════════════════════════════════════
+# GATE: system-analysis (Phase 2 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: system-analysis
+phase: 2
+phase_name: "System Analysis"
+policy: deny-by-default
+
+checks:
+  - id: SYS-ALTERNATIVES-FEASIBLE
+    description: "All WSM alternatives implementable with available capabilities"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Remove infeasible alternatives; replan"
+
+  - id: SYS-GOAL-TREE-REACHABLE
+    description: "All sub-goals in goal tree reachable"
+    check: "true"
+    severity: CRITICAL
+    resolution: "Mark unreachable sub-goals as BLOCKED:<capability>"
+
+  - id: SYS-ROOT-CAUSE
+    description: "5 Whys analysis complete"
+    check: "grep -q 'Why #5' docs/system-analysis/*.md 2>/dev/null"
+    severity: HIGH
+    resolution: "Re-run System Analyst with explicit 5 Whys instruction"
+
+  - id: SYS-ARTIFACT-EXISTS
+    description: "System analysis artifact on disk"
+    check: "test -f docs/system-analysis/*.md"
+    severity: BLOCKER
+    resolution: "Re-run System Analyst"
+
+# ═══════════════════════════════════════════════════════
+# GATE: research (Phase 3 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: research
+phase: 3
+phase_name: "Deep Plan Research"
+policy: deny-by-default
+
+checks:
+  - id: RSH-SEARCHBOX-HEALTH
+    description: "Searchbox MCP accessible"
+    check: "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8024/mcp | grep -q 200"
+    severity: BLOCKER
+    resolution: "Restart searchbox container: docker restart openwebui-searchbox"
+
+  - id: RSH-NEO4J-HEALTH
+    description: "Neo4j accessible for education graph"
+    check: "curl -s -o /dev/null -w '%{http_code}' -u neo4j:<YOUR_NEO4J_PASSWORD> http://localhost:7474 | grep -q 200"
+    severity: CRITICAL
+    resolution: "Restart Neo4j or skip graph queries"
+
+  - id: RSH-SOURCES-DIVERSE
+    description: "Research plan includes ≥3 source types"
+    check: "true"
+    severity: HIGH
+    resolution: "Add missing source types to research plan"
+
+  - id: RSH-COST-GATE
+    description: "Cost Gate decided (single/balanced/quality)"
+    check: "true"
+    severity: MEDIUM
+    resolution: "Run Cost Gate logic before spawning sub-agents"
+
+# ═══════════════════════════════════════════════════════
+# GATE: architecture (Phase 4 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: architecture
+phase: 4
+phase_name: "Architecture Trio"
+policy: deny-by-default
+
+checks:
+  - id: ARC-MODULE-CONTRACTS-FEASIBLE
+    description: "All module contracts implementable"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Replace infeasible contracts with capability-aware alternatives"
+
+  - id: ARC-PORTS-FREE
+    description: "No port conflicts"
+    check: "ss -tlnp 2>/dev/null | awk '{print $4}' | grep -oP ':\\d+$' | sort | uniq -d | grep -q . && exit 1 || exit 0"
+    severity: CRITICAL
+    resolution: "Reassign conflicting ports"
+
+  - id: ARC-CROSS-PROJECT
+    description: "No cross-project conflicts"
+    check: "true"
+    severity: HIGH
+    resolution: "Enterprise Architect validation"
+
+  - id: ARC-ARTIFACT-EXISTS
+    description: "Architecture artifact on disk"
+    check: "test -f docs/architecture/*.md"
+    severity: BLOCKER
+    resolution: "Re-run Architect Trio"
+
+# ═══════════════════════════════════════════════════════
+# GATE: plan (Phase 5 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: plan
+phase: 5
+phase_name: "Tech Lead Plan"
+policy: deny-by-default
+
+checks:
+  - id: PLN-TASKS-EXECUTABLE
+    description: "All TDD tasks have developer with required tools"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Reassign developers or add missing tools"
+
+  - id: PLN-OWNERSHIP
+    description: "OWNERSHIP matrix complete"
+    check: "grep -q 'OWNERSHIP' .hermes/plans/*.md 2>/dev/null"
+    severity: BLOCKER
+    resolution: "Re-run Tech Lead to add OWNERSHIP section"
+
+  - id: PLN-FABRICATION-SCAN
+    description: "Post-plan fabrication scan"
+    check: "python3 $HERMES_HOME/scripts/capability_gate.py --post-plan .hermes/plans/*.md"
+    severity: CRITICAL
+    resolution: "Replace impossible verification steps with workarounds"
+
+  - id: PLN-PRINCIPLES
+    description: "Principles checklist passed"
+    check: "true"
+    severity: HIGH
+    resolution: "Address failed principles"
+
+# ═══════════════════════════════════════════════════════
+# GATE: preflight (Phase 5.5 — existing, expanded)
+# ═══════════════════════════════════════════════════════
+---
+gate: preflight
+phase: "5.5"
+phase_name: "Pre-Flight Gate"
+policy: deny-by-default
+
+checks:
+  - id: PF-CONTRACTS
+    description: "All services healthy"
+    check: "python3 $HERMES_HOME/scripts/orchestrator_gate.py --json 2>/dev/null | python3 -c \"import sys,json; d=json.load(sys.stdin); exit(0 if d.get('passed',0)==d.get('total',0) else 1)\""
+    severity: BLOCKER
+    resolution: "Restart failed services"
+
+  - id: PF-PORTS
+    description: "No port conflicts"
+    check: "ss -tlnp | awk '{print $4}' | grep -oP ':\\d+$' | sort | uniq -d | grep -q . && exit 1 || exit 0"
+    severity: BLOCKER
+    resolution: "Free conflicting ports"
+
+  - id: PF-ENV-VARS
+    description: "Environment variables consistent"
+    check: "test -n \"$HERMES_HOME\" -a -n \"$NEO4J_PASSWORD\""
+    severity: BLOCKER
+    resolution: "Set missing environment variables"
+
+  - id: PF-ISOLATION
+    description: "HERMES_HOME uniqueness"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Ensure no shared HERMES_HOME between processes"
+
+  - id: PF-OBSERVERS
+    description: "All 4 observers alive"
+    check: "true"  # Checked by orchestrator
+    severity: CRITICAL
+    resolution: "Re-spawn dead observers"
+
+  - id: PF-RESEARCH
+    description: "Research artifact exists"
+    check: "test -f docs/research/*.md && test $(wc -c < docs/research/*.md) -gt 500"
+    severity: BLOCKER
+    resolution: "Re-run Research phase"
+
+  - id: PF-RESEARCH-DEEP
+    description: "GATE B+C+D passed"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Re-run failed gates"
+
+  - id: PF-CAPABILITY-REPORT
+    description: "Capability report exists from Phase 0"
+    check: "test -f capability_report.json"
+    severity: CRITICAL
+    resolution: "Re-run capability_gate.py"
+
+  - id: PF-DEV-TOOLS
+    description: "Developer tools available (python3, git, venv)"
+    check: "which python3 git >/dev/null 2>&1"
+    severity: BLOCKER
+    resolution: "Install missing developer tools"
+
+# ═══════════════════════════════════════════════════════
+# GATE: implementation (Phase 6 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: implementation
+phase: 6
+phase_name: "Progressive Dev Pipeline"
+policy: deny-by-default
+
+checks:
+  - id: IMPL-TOOLS-PER-DEV
+    description: "Each developer has tools for assigned files"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Reassign files or add missing tools"
+
+  - id: IMPL-WORKTREE
+    description: "Worktree isolation ready"
+    check: "git rev-parse --git-dir 2>/dev/null"
+    severity: CRITICAL
+    resolution: "Skip worktree isolation; document in deviation log"
+
+  - id: IMPL-CAPABILITY-CTX
+    description: "Capability constraints in developer context"
+    check: "test -f capability_report.json"
+    severity: CRITICAL
+    resolution: "Re-run capability_gate.py"
+
+  - id: IMPL-CODEBASE-GRAPH
+    description: "Neo4j codebase graph accessible"
+    check: "curl -s -o /dev/null -w '%{http_code}' -u neo4j:<YOUR_NEO4J_PASSWORD> http://localhost:7474 | grep -q 200"
+    severity: HIGH
+    resolution: "Skip codebase graph queries; use grep/search_files"
+
+# ═══════════════════════════════════════════════════════
+# GATE: integration (Phase 6a entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: integration
+phase: 6a
+phase_name: "Integration Gate"
+policy: deny-by-default
+
+checks:
+  - id: INT-CROSS-IMPORT
+    description: "No orphan modules"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Wire orphan modules or remove"
+
+  - id: INT-TESTS-GREEN
+    description: "Integration tests pass"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Fix integration test failures"
+
+# ═══════════════════════════════════════════════════════
+# GATE: verification (Phase 6.5 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: verification
+phase: "6.5"
+phase_name: "System Analyst Verification"
+policy: deny-by-default
+
+checks:
+  - id: VER-GAP-PROPAGATION
+    description: "All GAPs from Phase 0 propagated to code"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Return to Phase 6 to address unpropagated GAPs"
+
+  - id: VER-SPEC-CONFORMANCE
+    description: "Spec conformance verified"
+    check: "true"
+    severity: CRITICAL
+    resolution: "Fix non-conformant code"
+
+  - id: VER-GOAL-TREE
+    description: "Goal tree complete"
+    check: "true"
+    severity: CRITICAL
+    resolution: "Implement missing sub-goals"
+
+  - id: VER-ROOT-CAUSE
+    description: "Root cause addressed"
+    check: "true"
+    severity: HIGH
+    resolution: "Revisit 5 Whys analysis"
+
+# ═══════════════════════════════════════════════════════
+# GATE: security (Phase 7 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: security
+phase: 7
+phase_name: "Security Audit"
+policy: deny-by-default
+
+checks:
+  - id: SEC-SAST-TOOLS
+    description: "All SAST tools available"
+    check: "which bandit semgrep 2>/dev/null | wc -l | grep -q 2 && echo OK || echo MISSING"
+    severity: CRITICAL
+    resolution: "pip install missing tools; skip unavailable with WARN"
+
+  - id: SEC-PIP-AUDIT
+    description: "pip-audit available"
+    check: "which pip-audit >/dev/null 2>&1"
+    severity: MEDIUM
+    resolution: "pip install pip-audit"
+
+  - id: SEC-GITLEAKS
+    description: "gitleaks available"
+    check: "which gitleaks >/dev/null 2>&1"
+    severity: MEDIUM
+    resolution: "Install gitleaks or skip secret scan"
+
+  - id: SEC-DOCKER-SCAN
+    description: "Docker available for container scan"
+    check: "docker info >/dev/null 2>&1 && echo AVAILABLE || echo UNAVAILABLE"
+    severity: MEDIUM
+    resolution: "Skip container scan; document in report"
+
+# ═══════════════════════════════════════════════════════
+# GATE: deployment (Phase 8 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: deployment
+phase: 8
+phase_name: "Deployment"
+policy: deny-by-default
+
+checks:
+  - id: DEP-TARGET-REACHABLE
+    description: "Target host reachable"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Verify network; escalate to user if unreachable"
+
+  - id: DEP-PERMISSIONS
+    description: "Deployment permissions"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Request permissions or delegate to user"
+
+  - id: DEP-DOCKER
+    description: "Docker available for container deploy"
+    check: "docker info >/dev/null 2>&1 && echo 1 || echo 0"
+    severity: CRITICAL
+    resolution: "Use local process deploy instead"
+
+  - id: DEP-PORTS
+    description: "Target ports free"
+    check: "true"
+    severity: HIGH
+    resolution: "Change ports or free them"
+
+# ═══════════════════════════════════════════════════════
+# GATE: acceptance (Phase 8.5 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: acceptance
+phase: "8.5"
+phase_name: "Acceptance Testing"
+policy: deny-by-default
+
+checks:
+  - id: ACC-TESTS-EXECUTABLE
+    description: "All acceptance tests have required tools"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Mark untestable tests as UNTESTABLE:<reason>"
+
+  - id: ACC-TRACEABILITY
+    description: "Traceability matrix complete"
+    check: "true"
+    severity: CRITICAL
+    resolution: "Add missing requirement→test mappings"
+
+  - id: ACC-AUTONOMOUS
+    description: "Tester can execute autonomously"
+    check: "true"
+    severity: CRITICAL
+    resolution: "Provide missing tools or delegate_to_user for specific tests"
+
+# ═══════════════════════════════════════════════════════
+# GATE: postdeploy (Phase 9 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: postdeploy
+phase: 9
+phase_name: "Post-Deploy Research"
+policy: deny-by-default
+
+checks:
+  - id: PD-MONITORING
+    description: "Monitoring accessible"
+    check: "true"
+    severity: CRITICAL
+    resolution: "Document evidence quality as LOW without monitoring"
+
+  - id: PD-LOGS
+    description: "Logs accessible"
+    check: "true"
+    severity: HIGH
+    resolution: "Use available logs; note gaps"
+
+# ═══════════════════════════════════════════════════════
+# GATE: iterate (Phase 10 entry)
+# ═══════════════════════════════════════════════════════
+---
+gate: iterate
+phase: 10
+phase_name: "Iterate + Reports"
+policy: deny-by-default
+
+checks:
+  - id: ITR-REPORTS-GENERATABLE
+    description: "All 4 observer reports generatable"
+    check: "true"
+    severity: BLOCKER
+    resolution: "Re-spawn dead observers"
+
+  - id: ITR-NEO4J
+    description: "Neo4j accessible for report synthesis"
+    check: "curl -s -o /dev/null -w '%{http_code}' -u neo4j:<YOUR_NEO4J_PASSWORD> http://localhost:7474 | grep -q 200"
+    severity: CRITICAL
+    resolution: "Restart Neo4j or use file-based reports"
+
+  - id: ITR-AFLOW-COMPARISON
+    description: "AFlow variant available for comparison"
+    check: "true"
+    severity: MEDIUM
+    resolution: "Skip AFlow comparison if variant not generated"
+
+  - id: ITR-LEARNER
+    description: "G8 Learner can persist to Neo4j"
+    check: "true"
+    severity: MEDIUM
+    resolution: "Skip retrospective learning; save to file"

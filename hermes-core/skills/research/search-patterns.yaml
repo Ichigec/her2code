@@ -1,0 +1,82 @@
+# Research Skill Library — кеш успешных поисковых паттернов
+
+patterns:
+  - domain: "framework comparison"
+    queries:
+      - '"{X} vs {Y}" benchmark 2026'
+      - "site:github.com {X} performance"
+      - '"{X}" req/s wrk2 benchmark'
+    sources: [github, techempower, arxiv]
+    success_rate: 0.92
+    last_used: "2026-06-24"
+    notes: "TechEmpower Round 22 + GitHub comparison + ArXiv for academic benchmarks"
+
+  - domain: "android latency"
+    queries:
+      - '"{component}" android latency milliseconds'
+      - "site:developer.android.com {component}"
+      - '"{component}" AudioTrack MediaPlayer benchmark'
+    sources: [developer.android.com, github, stackoverflow]
+    success_rate: 0.87
+    last_used: "2026-06-20"
+    notes: "Android developer docs first, then GitHub for benchmarks, SO for gotchas"
+
+  - domain: "python async frameworks"
+    queries:
+      - '"{framework}" async performance python 3.12'
+      - "pypi.org {framework}"
+      - "site:docs.{framework} benchmark"
+    sources: [pypi, github, documentation]
+    success_rate: 0.94
+    last_used: "2026-06-24"
+    notes: "Always check PyPI first for version/last-release info, then docs"
+
+  - domain: "voice chat pipeline"
+    queries:
+      - "WebRTC vs WebSocket voice latency 2026"
+      - '"{STT engine}" android latency benchmark'
+      - "opus codec android latency milliseconds"
+    sources: [arxiv, stackoverflow, github]
+    success_rate: 0.81
+    last_used: "2026-06-15"
+    notes: "STT comparison papers on ArXiv, implementation gotchas on SO"
+
+  - domain: "MCP servers"
+    queries:
+      - "site:github.com MCP server {domain}"
+      - '"model context protocol" {domain} tools'
+      - "{domain} MCP tools capabilities"
+    sources: [github, npm, documentation]
+    success_rate: 0.89
+    last_used: "2026-06-22"
+    notes: "GitHub first (most MCP servers live there), then npm for JS ones"
+
+  - domain: "Neo4j graph patterns"
+    queries:
+      - '"{pattern}" cypher query example'
+      - "neo4j knowledge graph {domain}"
+      - "graphrag vs knowledge graph 2026"
+    sources: [neo4j.com, arxiv, github]
+    success_rate: 0.85
+    last_used: "2026-06-18"
+    notes: "Neo4j official docs for Cypher, ArXiv for graph research"
+
+  - domain: "deep research architecture"
+    queries:
+      - '"deep research agent" architecture 2026'
+      - "multi-agent research orchestration production"
+      - "site:anthropic.com multi-agent research"
+    sources: [arxiv, anthropic.com, langchain.com]
+    success_rate: 0.90
+    last_used: "2026-06-23"
+    notes: "Anthropic engineering blog is gold standard, then ArXiv for academic"
+
+  - domain: "citation verification"
+    queries:
+      - "citation verification LLM semantic matching"
+      - "CiteGuard citation accuracy benchmark"
+      - '"citation enforcement" agent research'
+    sources: [arxiv, semanticscholar, github]
+    success_rate: 0.78
+    last_used: "2026-06-23"
+    notes: "ArXiv papers: CiteGuard (Choi 2026), VeriFact-CoT (2025), ReportBench (2025)"

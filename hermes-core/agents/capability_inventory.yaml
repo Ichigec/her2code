@@ -1,0 +1,341 @@
+# Capability Inventory — single source of truth for agent capabilities
+# Used by G1 Loader at Phase 0 bootstrap
+# Updated manually when infrastructure changes, or by G8 Learner from user additions
+
+version: "1.0.0"
+generated: "2026-06-25"
+updated_by: "plan2 orchestration cycle"
+
+# ============================================================================
+# STATIC CAPABILITIES — always available/always unavailable
+# ============================================================================
+static:
+  # --- Core (builtin, always available) ---
+  code_write:
+    available: true
+    source: builtin
+    description: "Write code in Python, JS/TS, Bash, Kotlin"
+    severity: CRITICAL
+
+  terminal_exec:
+    available: true
+    source: builtin
+    description: "Execute shell commands on Linux host"
+    severity: CRITICAL
+
+  file_read:
+    available: true
+    source: builtin
+    description: "Read files from filesystem"
+    severity: CRITICAL
+
+  file_write:
+    available: true
+    source: builtin
+    description: "Write/overwrite files"
+    severity: CRITICAL
+
+  delegate_task:
+    available: true
+    source: builtin
+    description: "Spawn sub-agents for parallel work"
+    severity: CRITICAL
+
+  # --- External services (should be available) ---
+  neo4j:
+    available: true
+    source: system
+    check: "curl -s -o /dev/null -w '%{http_code}' -u neo4j:<YOUR_NEO4J_PASSWORD> http://localhost:7474 | grep -q 200"
+    description: "Neo4j graph database"
+    severity: HIGH
+    workaround: "skip Neo4j queries, use file-based storage"
+
+  searchbox_mcp:
+    available: true
+    source: system
+    check: "curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8024/mcp | grep -q 200"
+    description: "Multi-engine search via MCP"
+    severity: HIGH
+    workaround: "use terminal curl for direct searches"
+
+  # --- Media tools ---
+  ffmpeg:
+    available: true
+    source: system
+    path: "/usr/bin/ffmpeg"
+    check: "which ffmpeg >/dev/null 2>&1"
+    description: "Audio/video processing"
+    severity: MEDIUM
+
+  imagemagick:
+    available: true
+    source: system
+    path: "/usr/bin/identify"
+    check: "which identify >/dev/null 2>&1"
+    description: "Image format/structure validation"
+    severity: MEDIUM
+
+  adb:
+    available: true
+    source: system
+    path: "/home/user/Android/Sdk/platform-tools/adb"
+    check: "test -x /home/user/Android/Sdk/platform-tools/adb"
+    description: "Android device bridge"
+    severity: HIGH
+    workaround: "cannot test on phone; use emulator or skip phone tests"
+
+  # --- GAPS — capabilities agent does NOT have ---
+  vision:
+    available: false
+    source: none
+    description: "Cannot see/analyze images visually"
+    severity: CRITICAL
+    workaround: "imagemagick identify for structural validation, user for visual check"
+    resolution_strategy: structural_validation
+
+  browser_gui:
+    available: false
+    source: none
+    description: "Cannot open browser with GUI (no $DISPLAY on server)"
+    severity: HIGH
+    workaround: "curl for HTTP checks, headless testing via terminal"
+    resolution_strategy: tool_workaround
+
+  web_fetch:
+    available: false
+    source: none
+    description: "Cannot fetch arbitrary web pages"
+    severity: HIGH
+    workaround: "curl -sL for text extraction, searchbox MCP for search"
+    resolution_strategy: tool_workaround
+
+  web_search:
+    available: false
+    source: none
+    description: "No web_search tool available"
+    severity: HIGH
+    workaround: "searchbox MCP for search, curl for page fetch"
+    resolution_strategy: tool_workaround
+
+  audio_play:
+    available: false
+    source: none
+    description: "Cannot play audio directly"
+    severity: MEDIUM
+    workaround: "write audio file, user plays manually"
+    resolution_strategy: delegate_to_user
+
+# ============================================================================
+# DYNAMIC CAPABILITIES — checked at runtime via live probes
+# ============================================================================
+dynamic:
+  cuda:
+    check: "python3 -c 'import ctranslate2; print(ctranslate2.get_cuda_device_count())' 2>/dev/null || echo 0"
+    expected: "0"
+    description: "CUDA GPU availability for ML inference"
+    severity: MEDIUM
+    workaround: "CPU-only inference (slower but functional)"
+    timeout_seconds: 10
+
+  docker:
+    check: "docker info >/dev/null 2>&1 && echo 1 || echo 0"
+    expected: "1"
+    description: "Docker daemon availability"
+    severity: HIGH
+    workaround: "local process instead of container, or skip containerized steps"
+    timeout_seconds: 5
+
+  git:
+    check: "git rev-parse --git-dir 2>/dev/null && echo 1 || echo 0"
+    expected: "1"
+    description: "Git repository for worktree isolation"
+    severity: HIGH
+    workaround: "in-place work (higher conflict risk), documented in deviation log"
+    timeout_seconds: 3
+
+  venv:
+    check: "test -f /home/user/.hermes/hermes-agent/venv/bin/python3 && echo 1 || echo 0"
+    expected: "1"
+    description: "Hermes Python virtual environment"
+    severity: CRITICAL
+    workaround: "use system python3 (may miss dependencies)"
+    timeout_seconds: 2
+
+# ============================================================================
+# KEYWORD → CAPABILITY MAPPING (L1 — static matching, ~60% accuracy)
+# ============================================================================
+keyword_mapping:
+  # Russian keywords
+  "картинк": [vision]
+  "изображен": [vision]
+  "скриншот": [vision, adb]
+  "фото": [vision]
+  "аудио": [ffmpeg, audio_play]
+  "звук": [ffmpeg, audio_play]
+  "голос": [ffmpeg, audio_play]
+  "телефон": [adb]
+  "android": [adb]
+  "adb": [adb]
+  "браузер": [browser_gui]
+  "gui": [browser_gui]
+  "интерфейс": [browser_gui]
+  "веб": [web_fetch]
+  "сайт": [web_fetch, browser_gui]
+  "url": [web_fetch]
+  "http": [web_fetch]
+  "видео": [ffmpeg]
+  "контейнер": [docker]
+  "docker": [docker]
+  "gpu": [cuda]
+  "cuda": [cuda]
+  "ml": [cuda]
+  "база": [neo4j]
+  "neo4j": [neo4j]
+  "граф": [neo4j]
+  "поиск": [searchbox_mcp]
+
+  # English keywords
+  "image": [vision]
+  "picture": [vision]
+  "screenshot": [vision, adb]
+  "photo": [vision]
+  "audio": [ffmpeg, audio_play]
+  "sound": [ffmpeg, audio_play]
+  "voice": [ffmpeg, audio_play]
+  "phone": [adb]
+  "browser": [browser_gui]
+  "web": [web_fetch, browser_gui]
+  "url": [web_fetch]
+  "http": [web_fetch]
+  "video": [ffmpeg]
+  "container": [docker]
+  "docker": [docker]
+  "gpu": [cuda]
+  "cuda": [cuda]
+  "database": [neo4j]
+  "graph": [neo4j]
+
+# ============================================================================
+# COMPOSITION RULES — derived gaps from tool combinations
+# ============================================================================
+composition_rules:
+  - name: "phone_test_requires_adb"
+    description: "Testing on phone requires ADB availability"
+    required: [terminal_exec, adb]
+    produces: "phone_test"
+    severity: CRITICAL
+
+  - name: "screenshot_verification_requires_vision"
+    description: "Verifying screenshots requires vision capability"
+    required: [vision]
+    produces: "screenshot_verification"
+    severity: CRITICAL
+
+  - name: "web_ui_test_requires_browser"
+    description: "Testing web UI requires browser GUI"
+    required: [browser_gui]
+    produces: "web_ui_test"
+    severity: HIGH
+
+  - name: "container_build_requires_docker"
+    description: "Building containers requires Docker daemon"
+    required: [docker]
+    produces: "container_build"
+    severity: HIGH
+
+  - name: "gpu_inference_requires_cuda"
+    description: "GPU-accelerated inference requires CUDA"
+    required: [cuda]
+    produces: "gpu_inference"
+    severity: MEDIUM
+
+  - name: "audio_generation_requires_ffmpeg"
+    description: "Audio file generation requires ffmpeg"
+    required: [ffmpeg]
+    produces: "audio_generation"
+    severity: MEDIUM
+
+  - name: "image_validation_requires_imagemagick_or_vision"
+    description: "Image validation needs either imagemagick (structural) or vision (visual)"
+    any_of: [imagemagick, vision]
+    produces: "image_validation"
+    severity: HIGH
+
+# ============================================================================
+# BACCM INTERVIEW TEMPLATE (G3 TaskInterviewer)
+# ============================================================================
+baccm_template:
+  version: "1.0.0"
+  questions:
+    change:
+      prompt: "Что изменится в системе после выполнения этой задачи?"
+      extracts: "artifact_type"
+    need:
+      prompt: "Что должна уметь делать система/агент для выполнения?"
+      extracts: "required_tools"
+    solution:
+      prompt: "Как именно будет решаться задача? Какие шаги?"
+      extracts: "concrete_commands"
+    stakeholder:
+      prompt: "Кто будет проверять результат? Человек или автотесты?"
+      extracts: "verification_method"
+    value:
+      prompt: "Как измерить успех? Какие критерии приёмки?"
+      extracts: "acceptance_criteria"
+    context:
+      prompt: "Какие есть ограничения среды? Платформа, доступность сервисов?"
+      extracts: "platform_constraints"
+
+# ============================================================================
+# SEVERITY TAXONOMY
+# ============================================================================
+severity_levels:
+  BLOCKER:
+    code: B
+    description: "Phase CANNOT start without this capability"
+    gate_behavior: "threshold=1.0 — all BLOCKER checks must PASS"
+  CRITICAL:
+    code: C
+    description: "Phase starts degraded. Fix within 1 cycle or escalate"
+    gate_behavior: "threshold=0.8 — max 20% CRITICAL failures tolerated"
+  HIGH:
+    code: H
+    description: "Phase proceeds with warning. Fix before downstream phase"
+    gate_behavior: "threshold=0.6 — reported in audit"
+  MEDIUM:
+    code: M
+    description: "Advisory. Captured in observer checkpoints"
+    gate_behavior: "non-blocking, logged"
+  WARN:
+    code: W
+    description: "Informational only. No action required"
+    gate_behavior: "non-blocking"
+
+# ============================================================================
+# RESOLUTION STRATEGIES (ordered by preference)
+# ============================================================================
+resolution_strategies:
+  - name: tool_workaround
+    description: "Use alternative tools to achieve same goal"
+    example: "vision → imagemagick identify for structural validation"
+  - name: structural_validation
+    description: "Validate structure/metadata without full capability"
+    example: "Check image format/size without seeing it"
+  - name: delegate_to_user
+    description: "Ask user to perform the check manually"
+    example: "Visual verification: user checks screenshot"
+  - name: delegate_to_capable_agent
+    description: "Route to sub-agent that has the capability"
+    example: "Dev without adb → Dev with adb"
+  - name: replan_around_gap
+    description: "Replan using a different approach that doesn't need this capability"
+    example: "No Docker → local process instead of container"
+  - name: accept_risk
+    description: "Accept that verification cannot be done, document as limitation"
+    example: "Cannot verify visually, relying on structural checks"
+  - name: retry_with_backoff
+    description: "Transient failure → retry after cooldown"
+    example: "Network timeout → retry in 30s"
+  - name: defer_to_next_cycle
+    description: "Requires infrastructure change → schedule for next sprint"
+    example: "GPU needed → order hardware, defer"

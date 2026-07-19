@@ -1,0 +1,52 @@
+# llama-swap config — 3 simultaneous models on DGX Spark 128GB
+# Correct syntax for v229/v234: groups + swap:false (NOT unload:false or matrix:)
+# Copy and modify model paths/quantization as needed.
+
+startPort: 8100
+healthCheckTimeout: 300
+
+models:
+  nex:
+    cmd: >
+      /home/user/dev/llama.cpp/build/bin/llama-server
+      -m /home/user/models/Huihui-Nex-N2-mini-abliterated-APEX-Quality.gguf
+      --alias nex-n2-mini
+      -ngl 99 -c 65536
+      --cache-type-k q8_0 --cache-type-v q8_0
+      --mlock
+      --host 127.0.0.1 --port ${PORT}
+    env:
+      - "GGML_CUDA_ENABLE_UNIFIED_MEMORY=1"
+
+  qwen:
+    cmd: >
+      /home/user/dev/llama.cpp/build/bin/llama-server
+      -m /home/user/models/Qwen3.6-35B-A3B-uncensored-heretic-Native-MTP-Preserved-APEX-I-Quality.gguf
+      --alias qwen3.6-35b
+      -ngl 99 -c 65536
+      --cache-type-k q8_0 --cache-type-v q8_0
+      --mlock
+      --host 127.0.0.1 --port ${PORT}
+    env:
+      - "GGML_CUDA_ENABLE_UNIFIED_MEMORY=1"
+
+  world:
+    cmd: >
+      /home/user/dev/llama.cpp/build/bin/llama-server
+      -m /home/user/models/SuperQwen-APEX-I-Quality-v3.gguf
+      --alias agentworld
+      -ngl 99 -c 32768
+      --cache-type-k q8_0 --cache-type-v q8_0
+      --mlock
+      --host 127.0.0.1 --port ${PORT}
+    env:
+      - "GGML_CUDA_ENABLE_UNIFIED_MEMORY=1"
+
+groups:
+  all-models:
+    members: [nex, qwen, world]
+    swap: false          # false = keep all members in memory (NOT "unload: false")
+
+hooks:
+  on_startup:
+    preload: [nex, qwen, world]   # load all 3 at startup (5-10 min)

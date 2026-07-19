@@ -1,14 +1,24 @@
-# NEVER commit real keys or personal data
+# Created by start-backend.sh on first run
 .env
 
-# Docker volumes
-.hermes-docker/
+# Docker data volumes
+.hermes-portable/
+.hermes-portable-dash/
 
-# OS files
+# Hermes runtime
+*.db
+*.db-shm
+*.db-wal
+state.db
+*.sqlite
+
+# Cache
+__pycache__/
+*.pyc
+cache/
+logs/
+sessions/
+
+# OS
 .DS_Store
 Thumbs.db
-opencode-android/
-opencode-plus/
-db/
-infra/
-status-proxy.py

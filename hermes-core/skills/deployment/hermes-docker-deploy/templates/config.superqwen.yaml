@@ -1,0 +1,98 @@
+# Hermes Agent — Docker config for single SuperQwen APEX model (direct mode)
+# Gateway (--network host) → llama-server :8103 directly
+# No LiteLLM needed — host network bypasses UFW
+#
+# Model:
+#   agentworld     :8103  SuperQwen APEX I-Quality v3 (22G, world sim)
+#
+# Usage:
+#   cp templates/config.superqwen.yaml ~/.hermes-portable/config.yaml
+#   # Or via start.sh: ./start.sh full --superqwen
+#
+# Advantage over 3-model: saves ~55G GPU RAM (22G vs 77G), faster cold start.
+
+_config_version: 28
+
+model:
+  provider: custom:world
+  default: agentworld
+  context_length: 262144
+
+custom_providers:
+  - name: world
+    base_url: http://localhost:8103/v1
+    api_mode: chat_completions
+    api_key: sk-no-key-required
+    models:
+      agentworld:
+        context_length: 262144
+
+agent:
+  max_turns: 900
+  gateway_timeout: 1800
+  restart_drain_timeout: 180
+  api_max_retries: 3
+  service_tier: ''
+  tool_use_enforcement: auto
+  task_completion_guidance: true
+  environment_probe: true
+  environment_hint: ''
+  gateway_timeout_warning: 900
+  clarify_timeout: 600
+  gateway_notify_interval: 180
+  gateway_auto_continue_freshness: 3600
+  image_input_mode: auto
+  disabled_toolsets: []
+  reasoning_effort: xhigh
+  verbose: false
+
+toolsets:
+  - hermes-cli
+
+terminal:
+  backend: local
+  cwd: /opt/data
+  timeout: 18000
+  persistent_shell: true
+
+web:
+  backend: ''
+  search_backend: ''
+  extract_backend: ''
+
+browser:
+  inactivity_timeout: 120
+  command_timeout: 30
+  record_sessions: false
+  engine: auto
+
+execute_code:
+  enabled: true
+  sandbox: auto
+  timeout: 300
+
+delegation:
+  max_concurrent_children: 6
+  max_spawn_depth: 2
+  subagent_timeout: 600
+  orchestrator_enabled: true
+
+gateway:
+  enable: false
+  port: 8643
+  host: 0.0.0.0
+
+skill_router:
+  enabled: false
+
+security:
+  allow_lazy_installs: false
+
+plugins:
+  enabled: false
+
+# api_server settings come from .env (API_SERVER_PORT, API_SERVER_KEY)
+
+approvals:
+  mode: 'off'
+  timeout: 60

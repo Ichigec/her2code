@@ -1,0 +1,2336 @@
+{
+  "agents": {
+    "aflow-orchestrator": {
+      "name": "AFlow Orchestrator",
+      "description": "AFlow Orchestrator — MCTS-based поиск оптимального workflow. Запускается параллельно с plan2. Ищет альтернативные планы через Monte Carlo Tree Search над фазами-Operators. Возвращает лучший найденный вариант для сравнения с основным планом.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "delegation",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "file",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "aflow-orchestrator.md"
+    },
+    "architect-agent": {
+      "name": "Architect",
+      "description": "Архитектор — проектирует архитектуру, верифицирует с пользователем, помогает команде",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file",
+        "search",
+        "web",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "architect-agent.md"
+    },
+    "auditor": {
+      "name": "Auditor",
+      "description": "Auditor — первый наблюдатель. Проверяет качество процесса, полноту контекста, потери информации. Пишет в Neo4j (:AuditFinding).",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "auditor.md"
+    },
+    "build": {
+      "name": "Build",
+      "description": "Full dev access — full lifecycle agent with deep analytical capability",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "build.md"
+    },
+    "claw-orchestrator": {
+      "name": "Claw Orchestrator",
+      "description": "Minimal 5-phase orchestrator for claw graph maintenance (discover → process → draft → sync → audit)",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "terminal",
+        "file",
+        "file_ro",
+        "search_files",
+        "read_file",
+        "session_search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "claw-orchestrator.md"
+    },
+    "critic": {
+      "name": "Critic",
+      "description": "Critic — второй наблюдатель. Ищет лишнее, over-engineering, причины усложнения. Пишет в Neo4j (:CriticFinding).",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "critic.md"
+    },
+    "deep-plan-researcher": {
+      "name": "Deep Researcher",
+      "description": "Deep Plan Research — трёхфазный пайплайн с гейтами, Claw-интеграцией, debate mode и developer query",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "delegation",
+        "terminal",
+        "file",
+        "file_ro",
+        "search_files",
+        "web",
+        "session_search",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "deep-plan-researcher.md"
+    },
+    "deployment-agent": {
+      "name": "Deployment",
+      "description": "Деплой — разворачивает решение, проверяет работоспособность, настраивает мониторинг",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "deployment-agent.md"
+    },
+    "dev/dev-creative": {
+      "name": "dev-creative",
+      "description": "Alternative architectures. Runs quality gates after every change.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "web",
+        "browser",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev/dev-creative.md"
+    },
+    "dev/dev-maverick": {
+      "name": "dev-maverick",
+      "description": "Breaks all rules to make it work. Last resort. Runs quality gates even here.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "web",
+        "browser",
+        "skills",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev/dev-maverick.md"
+    },
+    "dev/dev-pragmatic": {
+      "name": "dev-pragmatic",
+      "description": "Standard patterns. Runs quality gates after every change.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "web",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev/dev-pragmatic.md"
+    },
+    "dev/dev-skeptic": {
+      "name": "dev-skeptic",
+      "description": "Minimal code changes. KISS extreme. Runs quality gates after every change.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev/dev-skeptic.md"
+    },
+    "dev-creative": {
+      "name": "dev-creative",
+      "description": "Alternative architectures. Runs quality gates after every change.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "web",
+        "browser",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev-creative.md"
+    },
+    "dev-maverick": {
+      "name": "dev-maverick",
+      "description": "Breaks all rules to make it work. Last resort. Runs quality gates even here.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "web",
+        "browser",
+        "skills",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev-maverick.md"
+    },
+    "dev-pragmatic": {
+      "name": "dev-pragmatic",
+      "description": "Standard patterns. Runs quality gates after every change.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "web",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev-pragmatic.md"
+    },
+    "dev-skeptic": {
+      "name": "dev-skeptic",
+      "description": "Minimal code changes. KISS extreme. Runs quality gates after every change.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file",
+        "patch",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [
+        "researcher",
+        "system-analyst",
+        "architect-agent"
+      ],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "dev-skeptic.md"
+    },
+    "developer-agent": {
+      "name": "Developer",
+      "description": "Разработчик — упёртый, упрямый, делает всё чтобы код работал. Может нарушать запреты.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "developer-agent.md"
+    },
+    "devops-engineer": {
+      "name": "DevOps Engineer",
+      "description": "Integration gate owner. Validates module wiring: verifies every component is actually imported/called by the orchestrator. Phase 6a after Implement.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "devops-engineer.md"
+    },
+    "enterprise-architect": {
+      "name": "Enterprise Architect",
+      "description": "Cross-project alignment. Validates architectural decisions against the full system landscape (Hermes, OpenCode+, Android app, Neo4j, voice infra)",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "enterprise-architect.md"
+    },
+    "general": {
+      "name": "General",
+      "description": "All tools — full lifecycle agent with deep analytical capability",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "general.md"
+    },
+    "idea-generator": {
+      "name": "Idea Generator",
+      "description": "Idea Generator — третий наблюдатель. Ловит неслышанные идеи, предлагает ADAS-mutations. Пишет в Neo4j (:Idea, :Mutation).",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal",
+        "skills",
+        "memory"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "idea-generator.md"
+    },
+    "jidoka-evaluator": {
+      "name": "Jidoka Evaluator",
+      "description": "Независимый оценщик — проверяет результат разработчика против StandardWork контракта. Скептический, ищет проблемы. Gate между разработчиком и приёмкой.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "jidoka-evaluator.md"
+    },
+    "knowledge-curator": {
+      "name": "Knowledge Curator",
+      "description": "Knowledge Curator — 13-й агент, четвёртый наблюдатель. Извлекает знания из артефактов всех фаз, сохраняет в Neo4j Knowledge Graph, связывает находки между циклами, причёсывает базу знаний.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "memory",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "knowledge-curator.md"
+    },
+    "observer-orchestrator": {
+      "name": "Observer Orchestrator",
+      "description": "Observer Orchestrator — координирует 4 observer'а (Auditor, Critic, Idea Generator, Knowledge Curator). Сам не пишет код, только анализирует и направляет. Спавнит observer'ов по необходимости и агрегирует их находки в Neo4j.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal",
+        "skills",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "observer-orchestrator.md"
+    },
+    "plan": {
+      "name": "Plan",
+      "description": "Orchestrator v2 — Research Orchestra (5 agents), Pre-Flight Gate, Progressive Dev Pipeline, Code RAG, Agent Network Topology",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "delegation",
+        "todo",
+        "file",
+        "session_search",
+        "skills",
+        "clarify",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan.md"
+    },
+    "plan1/aflow-orchestrator": {
+      "name": "Plan1 · AFlow Orchestrator",
+      "description": "AFlow Orchestrator — MCTS-based поиск оптимального workflow. Запускается параллельно с plan2. Ищет альтернативные планы через Monte Carlo Tree Search над фазами-Operators. Возвращает лучший найденный вариант для сравнения с основным планом.",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "tools": [
+        "delegation",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "file",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/aflow-orchestrator.md"
+    },
+    "plan1/architect-agent": {
+      "name": "Plan1 · Architect",
+      "description": "Архитектор — проектирует архитектуру, верифицирует с пользователем, помогает команде",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "tools": [
+        "file",
+        "search",
+        "web",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/architect-agent.md"
+    },
+    "plan1/auditor": {
+      "name": "Plan1 · Auditor",
+      "description": "Auditor — первый наблюдатель. Проверяет качество процесса, полноту контекста, потери информации. Пишет в Neo4j (:AuditFinding).",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/auditor.md"
+    },
+    "plan1/critic": {
+      "name": "Plan1 · Critic",
+      "description": "Critic — второй наблюдатель. Ищет лишнее, over-engineering, причины усложнения. Пишет в Neo4j (:CriticFinding).",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/critic.md"
+    },
+    "plan1/deployment-agent": {
+      "name": "Plan1 · Deployment",
+      "description": "Деплой — разворачивает решение, проверяет работоспособность, настраивает мониторинг",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/deployment-agent.md"
+    },
+    "plan1/developer-agent": {
+      "name": "Plan1 · Developer",
+      "description": "Разработчик — упёртый, упрямый, делает всё чтобы код работал. Может нарушать запреты.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/developer-agent.md"
+    },
+    "plan1/devops-engineer": {
+      "name": "Plan1 · DevOps Engineer",
+      "description": "Integration gate owner. Validates module wiring - verifies every component is actually imported/called by the orchestrator. Phase 6a after Implement.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/devops-engineer.md"
+    },
+    "plan1/enterprise-architect": {
+      "name": "Plan1 · Enterprise Architect",
+      "description": "Cross-project alignment. Validates architectural decisions against the full system landscape (Hermes, OpenCode+, Android app, Neo4j, voice infra)",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/enterprise-architect.md"
+    },
+    "plan1/idea-generator": {
+      "name": "Plan1 · Idea Generator",
+      "description": "Idea Generator — третий наблюдатель. Ловит неслышанные идеи, предлагает ADAS-mutations. Пишет в Neo4j (:Idea, :Mutation).",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal",
+        "skills",
+        "memory"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/idea-generator.md"
+    },
+    "plan1/jidoka-evaluator": {
+      "name": "Plan1 · Jidoka Evaluator",
+      "description": "Независимый оценщик — проверяет результат разработчика против StandardWork контракта. Скептический, ищет проблемы. Gate между разработчиком и приёмкой.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/jidoka-evaluator.md"
+    },
+    "plan1/knowledge-curator": {
+      "name": "Plan1 · Knowledge Curator",
+      "description": "Knowledge Curator — 13-й агент, четвёртый наблюдатель. Извлекает знания из артефактов всех фаз, сохраняет в Neo4j Knowledge Graph, связывает находки между циклами, причёсывает базу знаний.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "memory",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/knowledge-curator.md"
+    },
+    "plan1/requirements-agent": {
+      "name": "Plan1 · Requirements",
+      "description": "Сборщик требований — задаёт уточняющие вопросы, перезапускает цикл",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "clarify"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/requirements-agent.md"
+    },
+    "plan1/researcher": {
+      "name": "Plan1 · Researcher",
+      "description": "Исследователь — глубокий анализ, итеративный поиск, создаёт sub-агентов для ускорения",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "tools": [
+        "search",
+        "web",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/researcher.md"
+    },
+    "plan1/security-agent": {
+      "name": "Plan1 · Security",
+      "description": "Безопасник — ищет баги, дыры, пароли, утечки, угрозы команде. SAST gate.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/security-agent.md"
+    },
+    "plan1/sim-rl-agent": {
+      "name": "Plan1 · SimRL",
+      "description": "Симуляция сред и предсказание состояний через AgentWorld (AgentWorldBench 56.39)",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/sim-rl-agent.md"
+    },
+    "plan1/system-analyst": {
+      "name": "Plan1 · System Analyst",
+      "description": "Системный аналитик — возвращает команду к целям, проверяет соответствие на всём цикле",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "tools": [
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/system-analyst.md"
+    },
+    "plan1/techlead-agent": {
+      "name": "Plan1 · Tech Lead v2 · Production Manager",
+      "description": "Техлид — StandardWork контракты, ownership matrix, import contracts, dynamic DAG, spec inference, cost-aware routing, Jidoka criteria. Управляет качеством фазы разработки.",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "tools": [
+        "delegation",
+        "clarify",
+        "terminal",
+        "file",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/techlead-agent.md"
+    },
+    "plan1/tester-agent": {
+      "name": "Plan1 · Tester",
+      "description": "Acceptance & regression tester — verifies deployment against requirements, system analysis, and user expectations. Tests autonomously, never delegates verification to the user.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "read_file",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1/tester-agent.md"
+    },
+    "plan1": {
+      "name": "Plan1",
+      "description": "Orchestrator v3 (Plan1) — GLM Orchestrator Roles + DeepSeek Sub-Agents, Full Cycle",
+      "model": "glm-5.2",
+      "provider": "zai",
+      "tools": [
+        "delegation",
+        "todo",
+        "file",
+        "session_search",
+        "skills",
+        "clarify",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan1.md"
+    },
+    "plan2/aflow-orchestrator": {
+      "name": "Plan2 · AFlow Orchestrator",
+      "description": "AFlow Orchestrator — MCTS-based поиск оптимального workflow. Запускается параллельно с plan2. Ищет альтернативные планы через Monte Carlo Tree Search над фазами-Operators. Возвращает лучший найденный вариант для сравнения с основным планом.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "file",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/aflow-orchestrator.md"
+    },
+    "plan2/architect-agent": {
+      "name": "Plan2 · Architect",
+      "description": "Архитектор — проектирует архитектуру, верифицирует с пользователем, помогает команде",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "file",
+        "search",
+        "web",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/architect-agent.md"
+    },
+    "plan2/auditor": {
+      "name": "Plan2 · Auditor",
+      "description": "Auditor — первый наблюдатель. Проверяет качество процесса, полноту контекста, потери информации. Пишет в Neo4j (:AuditFinding).",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/auditor.md"
+    },
+    "plan2/critic": {
+      "name": "Plan2 · Critic",
+      "description": "Critic — второй наблюдатель. Ищет лишнее, over-engineering, причины усложнения. Пишет в Neo4j (:CriticFinding).",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/critic.md"
+    },
+    "plan2/deep-plan-researcher": {
+      "name": "Deep Researcher",
+      "description": "Deep Plan Research — трёхфазный пайплайн с гейтами, Claw-интеграцией, debate mode и developer query",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "terminal",
+        "file",
+        "file_ro",
+        "search_files",
+        "web",
+        "session_search",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/deep-plan-researcher.md"
+    },
+    "plan2/deployment-agent": {
+      "name": "Plan2 · Deployment",
+      "description": "Деплой — разворачивает решение, проверяет работоспособность, настраивает мониторинг",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/deployment-agent.md"
+    },
+    "plan2/developer-agent": {
+      "name": "Plan2 · Developer",
+      "description": "Разработчик — упёртый, упрямый, делает всё чтобы код работал. Может нарушать запреты.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/developer-agent.md"
+    },
+    "plan2/devops-engineer": {
+      "name": "Plan2 · Devops Engineer",
+      "description": "Integration gate owner. Validates module wiring: verifies every component is actually imported/called by the orchestrator. Phase 6a after Implement.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/devops-engineer.md"
+    },
+    "plan2/enterprise-architect": {
+      "name": "Plan2 · Enterprise Architect",
+      "description": "Cross-project alignment. Validates architectural decisions against the full system landscape (Hermes, OpenCode+, Android app, Neo4j, voice infra)",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/enterprise-architect.md"
+    },
+    "plan2/idea-generator": {
+      "name": "Plan2 · Idea Generator",
+      "description": "Idea Generator — третий наблюдатель. Ловит неслышанные идеи, предлагает ADAS-mutations. Пишет в Neo4j (:Idea, :Mutation).",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal",
+        "skills",
+        "memory"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/idea-generator.md"
+    },
+    "plan2/jidoka-evaluator": {
+      "name": "Jidoka Evaluator",
+      "description": "Независимый оценщик — проверяет результат разработчика против StandardWork контракта. Скептический, ищет проблемы. Gate между разработчиком и приёмкой.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/jidoka-evaluator.md"
+    },
+    "plan2/knowledge-curator": {
+      "name": "Plan2 · Knowledge Curator",
+      "description": "Knowledge Curator — 13-й агент, четвёртый наблюдатель. Извлекает знания из артефактов всех фаз, сохраняет в Neo4j Knowledge Graph, связывает находки между циклами, причёсывает базу знаний.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "memory",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/knowledge-curator.md"
+    },
+    "plan2/observer-orchestrator": {
+      "name": "Observer Orchestrator",
+      "description": "Observer Orchestrator — координирует 4 observer'а (Auditor, Critic, Idea Generator, Knowledge Curator). Сам не пишет код, только анализирует и направляет. Спавнит observer'ов по необходимости и агрегирует их находки в Neo4j.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal",
+        "skills",
+        "delegation"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/observer-orchestrator.md"
+    },
+    "plan2/project-architect": {
+      "name": "Project Architect",
+      "description": "Codebase impact analysis via Neo4j. Queries CALLS/IMPORTS/CONTAINS to predict what breaks when code changes.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "read_file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/project-architect.md"
+    },
+    "plan2/requirements-agent": {
+      "name": "Plan2 · Requirements",
+      "description": "Сборщик требований — задаёт уточняющие вопросы, перезапускает цикл",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "clarify"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/requirements-agent.md"
+    },
+    "plan2/researcher_old": {
+      "name": "Plan2 · Researcher",
+      "description": "Исследователь — глубокий анализ, итеративный поиск, создаёт sub-агентов для ускорения",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "search",
+        "web",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/researcher_old.md"
+    },
+    "plan2/security-agent": {
+      "name": "Plan2 · Security",
+      "description": "Безопасник — ищет баги, дыры, пароли, утечки, угрозы команде. SAST gate.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file",
+        "search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/security-agent.md"
+    },
+    "plan2/system-analyst": {
+      "name": "Plan2 · System Analyst",
+      "description": "Системный аналитик — возвращает команду к целям, проверяет соответствие на всём цикле",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/system-analyst.md"
+    },
+    "plan2/techlead-agent": {
+      "name": "Plan2 · Tech Lead v3",
+      "description": "Техлид — Production Manager + Dev Pipeline Executor. Создаёт план (Phase 5) И спавнит developer-агентов (Phase 6). Управляет escalation, Review Swarm, merge. Sub-orchestrator для фаз разработки.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "clarify",
+        "terminal",
+        "file",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/techlead-agent.md"
+    },
+    "plan2/tester-agent": {
+      "name": "Plan2 · Tester",
+      "description": "Acceptance & regression tester — verifies deployment against requirements, system analysis, and user expectations. Tests autonomously, never delegates verification to the user.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "read_file",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2/tester-agent.md"
+    },
+    "plan2": {
+      "name": "Plan2",
+      "description": "Orchestrator v2 — Research Orchestra (5 agents), Pre-Flight Gate, Progressive Dev Pipeline, Code RAG, Agent Network Topology",
+      "model": "deepseek-v4-pro",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "todo",
+        "file",
+        "session_search",
+        "skills",
+        "clarify",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan2.md"
+    },
+    "plan3/aflow-orchestrator": {
+      "name": "Plan3 · AFlow Orchestrator",
+      "description": "AFlow Orchestrator — MCTS-based поиск оптимального workflow. Запускается параллельно с plan2. Ищет альтернативные планы через Monte Carlo Tree Search над фазами-Operators. Возвращает лучший найденный вариант для сравнения с основным планом.",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "file",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/aflow-orchestrator.md"
+    },
+    "plan3/architect-agent": {
+      "name": "Plan3 · Architect",
+      "description": "Архитектор — проектирует архитектуру, верифицирует с пользователем, помогает команде",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "file",
+        "search",
+        "web",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/architect-agent.md"
+    },
+    "plan3/auditor": {
+      "name": "Plan3 · Auditor",
+      "description": "Auditor — первый наблюдатель. Проверяет качество процесса, полноту контекста, потери информации. Пишет в Neo4j (:AuditFinding).",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/auditor.md"
+    },
+    "plan3/critic": {
+      "name": "Plan3 · Critic",
+      "description": "Critic — второй наблюдатель. Ищет лишнее, over-engineering, причины усложнения. Пишет в Neo4j (:CriticFinding).",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/critic.md"
+    },
+    "plan3/deployment-agent": {
+      "name": "Plan3 · Deployment",
+      "description": "Деплой — разворачивает решение, проверяет работоспособность, настраивает мониторинг",
+      "model": "nex-n2-mini",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/deployment-agent.md"
+    },
+    "plan3/developer-agent": {
+      "name": "Plan3 · Developer",
+      "description": "Разработчик — упёртый, упрямый, делает всё чтобы код работал. Может нарушать запреты.",
+      "model": "nex-n2-mini",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/developer-agent.md"
+    },
+    "plan3/devops-engineer": {
+      "name": "Plan3 · DevOps Engineer",
+      "description": "Integration gate owner. Validates module wiring: verifies every component is actually imported/called by the orchestrator. Phase 6a after Implement.",
+      "model": "nex-n2-mini",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/devops-engineer.md"
+    },
+    "plan3/enterprise-architect": {
+      "name": "Plan3 · Enterprise Architect",
+      "description": "Cross-project alignment. Validates architectural decisions against the full system landscape (Hermes, OpenCode+, Android app, Neo4j, voice infra)",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/enterprise-architect.md"
+    },
+    "plan3/idea-generator": {
+      "name": "Plan3 · Idea Generator",
+      "description": "Idea Generator — третий наблюдатель. Ловит неслышанные идеи, предлагает ADAS-mutations. Пишет в Neo4j (:Idea, :Mutation).",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal",
+        "skills",
+        "memory"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/idea-generator.md"
+    },
+    "plan3/jidoka-evaluator": {
+      "name": "Jidoka Evaluator",
+      "description": "Независимый оценщик — проверяет результат разработчика против StandardWork контракта. Скептический, ищет проблемы. Gate между разработчиком и приёмкой.",
+      "model": "nex-n2-mini",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/jidoka-evaluator.md"
+    },
+    "plan3/knowledge-curator": {
+      "name": "Plan3 · Knowledge Curator",
+      "description": "Knowledge Curator — 13-й агент, четвёртый наблюдатель. Извлекает знания из артефактов всех фаз, сохраняет в Neo4j Knowledge Graph, связывает находки между циклами, причёсывает базу знаний.",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "memory",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/knowledge-curator.md"
+    },
+    "plan3/requirements-agent": {
+      "name": "Plan3 · Requirements",
+      "description": "Сборщик требований — задаёт уточняющие вопросы, перезапускает цикл",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "clarify"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/requirements-agent.md"
+    },
+    "plan3/researcher": {
+      "name": "Plan3 · Researcher",
+      "description": "Исследователь — глубокий анализ, итеративный поиск, создаёт sub-агентов для ускорения",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "search",
+        "web",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/researcher.md"
+    },
+    "plan3/security-agent": {
+      "name": "Plan3 · Security",
+      "description": "Безопасник — ищет баги, дыры, пароли, утечки, угрозы команде. SAST gate.",
+      "model": "nex-n2-mini",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file",
+        "search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/security-agent.md"
+    },
+    "plan3/sim-rl-agent": {
+      "name": "Plan3 · SimRL",
+      "description": "Симуляция сред и предсказание состояний через AgentWorld (AgentWorldBench 56.39)",
+      "model": "agentworld",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/sim-rl-agent.md"
+    },
+    "plan3/system-analyst": {
+      "name": "Plan3 · System Analyst",
+      "description": "Системный аналитик — возвращает команду к целям, проверяет соответствие на всём цикле",
+      "model": "agents-a1-abliterated",
+      "provider": "custom:local",
+      "tools": [
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/system-analyst.md"
+    },
+    "plan3/techlead-agent": {
+      "name": "Plan3 · Tech Lead v2 · Production Manager",
+      "description": "Техлид — StandardWork контракты, ownership matrix, import contracts, dynamic DAG, spec inference, cost-aware routing, Jidoka criteria. Управляет качеством фазы разработки.",
+      "model": "nex-n2-mini",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "clarify",
+        "terminal",
+        "file",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/techlead-agent.md"
+    },
+    "plan3/tester-agent": {
+      "name": "Plan3 · Tester",
+      "description": "Acceptance & regression tester — verifies deployment against requirements, system analysis, and user expectations. Tests autonomously, never delegates verification to the user.",
+      "model": "nex-n2-mini",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "read_file",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3/tester-agent.md"
+    },
+    "plan3": {
+      "name": "Plan3",
+      "description": "Orchestrator v3 — Multi-Model Router (Qwen3.6+Nex+AgentWorld), Fugu/Fusion Pipeline, Fully Local",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "todo",
+        "file",
+        "session_search",
+        "skills",
+        "clarify",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan3.md"
+    },
+    "plan4/aflow-orchestrator": {
+      "name": "Plan4 · AFlow Orchestrator",
+      "description": "AFlow Orchestrator — MCTS-based поиск оптимального workflow. Запускается параллельно с plan2. Ищет альтернативные планы через Monte Carlo Tree Search над фазами-Operators. Возвращает лучший найденный вариант для сравнения с основным планом.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "deepseek",
+      "tools": [
+        "delegation",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "file",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/aflow-orchestrator.md"
+    },
+    "plan4/architect-agent": {
+      "name": "Plan4 · Architect",
+      "description": "Архитектор — проектирует архитектуру, верифицирует с пользователем, помогает команде",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "file",
+        "search",
+        "web",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/architect-agent.md"
+    },
+    "plan4/auditor": {
+      "name": "Plan4 · Auditor",
+      "description": "Auditor — первый наблюдатель. Проверяет качество процесса, полноту контекста, потери информации. Пишет в Neo4j (:AuditFinding).",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/auditor.md"
+    },
+    "plan4/critic": {
+      "name": "Plan4 · Critic",
+      "description": "Critic — второй наблюдатель. Ищет лишнее, over-engineering, причины усложнения. Пишет в Neo4j (:CriticFinding).",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/critic.md"
+    },
+    "plan4/deployment-agent": {
+      "name": "Plan4 · Deployment",
+      "description": "Деплой — разворачивает решение, проверяет работоспособность, настраивает мониторинг",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "terminal",
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/deployment-agent.md"
+    },
+    "plan4/developer-agent": {
+      "name": "Plan4 · Developer",
+      "description": "Разработчик — упёртый, упрямый, делает всё чтобы код работал. Может нарушать запреты.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/developer-agent.md"
+    },
+    "plan4/devops-engineer": {
+      "name": "Plan4 · DevOps Engineer",
+      "description": "Integration gate owner. Validates module wiring: verifies every component is actually imported/called by the orchestrator. Phase 6a after Implement.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/devops-engineer.md"
+    },
+    "plan4/enterprise-architect": {
+      "name": "Plan4 · Enterprise Architect",
+      "description": "Cross-project alignment. Validates architectural decisions against the full system landscape (Hermes, OpenCode+, Android app, Neo4j, voice infra)",
+      "model": "diffusiongemma-abliterated",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/enterprise-architect.md"
+    },
+    "plan4/idea-generator": {
+      "name": "Plan4 · Idea Generator",
+      "description": "Idea Generator — третий наблюдатель. Ловит неслышанные идеи, предлагает ADAS-mutations. Пишет в Neo4j (:Idea, :Mutation).",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "terminal",
+        "skills",
+        "memory"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/idea-generator.md"
+    },
+    "plan4/jidoka-evaluator": {
+      "name": "Jidoka Evaluator",
+      "description": "Независимый оценщик — проверяет результат разработчика против StandardWork контракта. Скептический, ищет проблемы. Gate между разработчиком и приёмкой.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "custom:kimi",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "session_search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/jidoka-evaluator.md"
+    },
+    "plan4/knowledge-curator": {
+      "name": "Plan4 · Knowledge Curator",
+      "description": "Knowledge Curator — 13-й агент, четвёртый наблюдатель. Извлекает знания из артефактов всех фаз, сохраняет в Neo4j Knowledge Graph, связывает находки между циклами, причёсывает базу знаний.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "file_ro",
+        "search_files",
+        "session_search",
+        "skills",
+        "memory",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/knowledge-curator.md"
+    },
+    "plan4/requirements-agent": {
+      "name": "Plan4 · Requirements",
+      "description": "Сборщик требований — задаёт уточняющие вопросы, перезапускает цикл",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "clarify"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/requirements-agent.md"
+    },
+    "plan4/researcher": {
+      "name": "Plan4 · Researcher",
+      "description": "Исследователь — глубокий анализ, итеративный поиск, создаёт sub-агентов для ускорения",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "search",
+        "web",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/researcher.md"
+    },
+    "plan4/security-agent": {
+      "name": "Plan4 · Security",
+      "description": "Безопасник — ищет баги, дыры, пароли, утечки, угрозы команде. SAST gate.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "terminal",
+        "file",
+        "search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/security-agent.md"
+    },
+    "plan4/system-analyst": {
+      "name": "Plan4 · System Analyst",
+      "description": "Системный аналитик — возвращает команду к целям, проверяет соответствие на всём цикле",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/system-analyst.md"
+    },
+    "plan4/techlead-agent": {
+      "name": "Plan4 · Tech Lead v2 · Production Manager",
+      "description": "Техлид — StandardWork контракты, ownership matrix, import contracts, dynamic DAG, spec inference, cost-aware routing, Jidoka criteria. Управляет качеством фазы разработки.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "custom:kimi",
+      "tools": [
+        "delegation",
+        "clarify",
+        "terminal",
+        "file",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/techlead-agent.md"
+    },
+    "plan4/tester-agent": {
+      "name": "Plan4 · Tester",
+      "description": "Acceptance & regression tester — verifies deployment against requirements, system analysis, and user expectations. Tests autonomously, never delegates verification to the user.",
+      "model": "diffusiongemma-abliterated",
+      "provider": "local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "read_file",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4/tester-agent.md"
+    },
+    "plan4": {
+      "name": "Plan4",
+      "description": "Orchestrator v4 — Single-Model Diffusion (DiffusionGemma 26B-A4B), Fugu/Fusion Pipeline, Fully Local",
+      "model": "diffusiongemma-abliterated",
+      "provider": "custom:vllm",
+      "tools": [
+        "delegation",
+        "todo",
+        "file",
+        "session_search",
+        "skills",
+        "clarify",
+        "terminal"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "plan4.md"
+    },
+    "project-architect": {
+      "name": "Project Architect",
+      "description": "Codebase impact analysis via Neo4j. Queries CALLS/IMPORTS/CONTAINS to predict what breaks when code changes.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "read_file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "project-architect.md"
+    },
+    "requirements-agent": {
+      "name": "Requirements",
+      "description": "Сборщик требований — задаёт уточняющие вопросы, перезапускает цикл",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "clarify"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "requirements-agent.md"
+    },
+    "requirements-interviewer": {
+      "name": "Requirements Interviewer",
+      "description": "Structured requirements elicitation agent — SPIN, 5 Whys, SMART, persona-based interviewing",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "clarify",
+        "web",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "requirements-interviewer.md"
+    },
+    "research/academic-researcher": {
+      "name": "academic-researcher",
+      "description": "Searches academic sources (arxiv, crossref, openalex, semanticscholar) for papers and citation trails",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "web",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [
+        "searchbox"
+      ],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "research/academic-researcher.md"
+    },
+    "research/citation-agent": {
+      "name": "Citation Agent",
+      "description": "Независимая верификация цитат — проверка URL, группировка фактов, семантическое совпадение",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "research/citation-agent.md"
+    },
+    "research/claw-analyzer": {
+      "name": "claw-analyzer",
+      "description": "Queries Neo4j claw graph and codebase graph — cross-graph traversal of Tools, CodeFiles, and CodeFunctions",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "web",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "research/claw-analyzer.md"
+    },
+    "research/code-researcher": {
+      "name": "code-researcher",
+      "description": "Searches code repositories and package registries (GitHub, PyPI, npm) for implementations, libraries, and code examples",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "web",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [
+        "searchbox"
+      ],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "research/code-researcher.md"
+    },
+    "research/codebase-analyzer": {
+      "name": "Codebase Analyzer",
+      "description": "Опциональный сабагент Deep Plan Research — анализ кодовой базы Hermes через Neo4j",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "research/codebase-analyzer.md"
+    },
+    "research/community-researcher": {
+      "name": "community-researcher",
+      "description": "Searches community knowledge bases (HackerNews, StackExchange, Reddit) for discussions, best practices, and real-world experience",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "web",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [
+        "searchbox"
+      ],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "research/community-researcher.md"
+    },
+    "research/debate-agent": {
+      "name": "Debate Agent",
+      "description": "Сабагент для debate mode — альтернативный взгляд на HIGH-priority RQ",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "terminal",
+        "web",
+        "file_ro"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "research/debate-agent.md"
+    },
+    "research/education-graph-analyzer": {
+      "name": "Education Graph Analyzer",
+      "description": "Опциональный сабагент Deep Plan Research — анализ Education Graph (Neo4j KnowledgeEntity)",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "research/education-graph-analyzer.md"
+    },
+    "research/synthesizer": {
+      "name": "synthesizer",
+      "description": "Aggregates results from 5 researcher agents — dedup, cross-reference, quality-score, conflict detection, structured research artifact",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "web",
+        "terminal",
+        "file"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "research/synthesizer.md"
+    },
+    "research/vendor-docs-researcher": {
+      "name": "vendor-docs-researcher",
+      "description": "Directly fetches vendor documentation via curl — no search engines. Strips HTML, extracts text, surfaces API references and configuration details",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "web",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "worktree",
+      "memory": "project",
+      "path": "research/vendor-docs-researcher.md"
+    },
+    "researcher_old": {
+      "name": "Researcher",
+      "description": "Исследователь — глубокий анализ, итеративный поиск, создаёт sub-агентов для ускорения",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "search",
+        "web",
+        "file"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "researcher_old.md"
+    },
+    "review/bug-reviewer": {
+      "name": "bug-reviewer",
+      "description": "Reviews code for logic errors, edge cases, null handling, and race conditions. Confidence >= 0.7 findings only.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "project",
+      "path": "review/bug-reviewer.md"
+    },
+    "review/convention-reviewer": {
+      "name": "convention-reviewer",
+      "description": "Reviews code for AGENTS.md compliance, project standards, and naming conventions. Confidence >= 0.7 findings only.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "project",
+      "path": "review/convention-reviewer.md"
+    },
+    "review/perf-reviewer": {
+      "name": "perf-reviewer",
+      "description": "Reviews code for N+1 queries, memory leaks, and algorithmic complexity. Confidence >= 0.7 findings only.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "project",
+      "path": "review/perf-reviewer.md"
+    },
+    "review/security-reviewer": {
+      "name": "security-reviewer",
+      "description": "Reviews code for OWASP Top 10, injections, data leaks, and hardcoded secrets. Confidence >= 0.7 findings only.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "project",
+      "path": "review/security-reviewer.md"
+    },
+    "review/style-reviewer": {
+      "name": "style-reviewer",
+      "description": "Reviews code for DRY, KISS, language idioms, and readability. Confidence >= 0.7 findings only.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file_ro",
+        "terminal"
+      ],
+      "permissionMode": "acceptEdits",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "project",
+      "path": "review/style-reviewer.md"
+    },
+    "security-agent": {
+      "name": "Security",
+      "description": "Безопасник — ищет баги, дыры, пароли, утечки, угрозы команде. SAST gate.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file",
+        "search"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "security-agent.md"
+    },
+    "system-analyst": {
+      "name": "System Analyst",
+      "description": "Системный аналитик — возвращает команду к целям, проверяет соответствие на всём цикле",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "file",
+        "search",
+        "web"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "system-analyst.md"
+    },
+    "techlead-agent": {
+      "name": "Tech Lead v2 · Production Manager",
+      "description": "Техлид — StandardWork контракты, ownership matrix, import contracts, dependency DAG, cost-aware routing, Jidoka criteria. Управляет качеством фазы разработки.",
+      "model": "glm-5.2",
+      "provider": "custom:local",
+      "tools": [
+        "delegation",
+        "clarify",
+        "terminal",
+        "file",
+        "search_files",
+        "session_search",
+        "memory",
+        "skills"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "techlead-agent.md"
+    },
+    "tester-agent": {
+      "name": "Tester",
+      "description": "Acceptance & regression tester — verifies deployment against requirements, system analysis, and user expectations. Tests autonomously, never delegates verification to the user.",
+      "model": "deepseek-v4-pro",
+      "provider": "deepseek",
+      "tools": [
+        "terminal",
+        "file_ro",
+        "search_files",
+        "read_file",
+        "browser"
+      ],
+      "permissionMode": "default",
+      "allowedSubagents": [],
+      "mcpServers": [],
+      "isolation": "none",
+      "memory": "session",
+      "path": "tester-agent.md"
+    }
+  },
+  "generated_at": "2026-07-15T21:04:37.026119+00:00",
+  "total_agents": 125
+}
