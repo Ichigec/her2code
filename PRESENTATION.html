@@ -3,247 +3,141 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Агентный пайплайн на базе Hermes</title>
+<title>Агентный пайплайн — 2 слайда</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/black.css">
 <style>
-  .reveal { font-size: 0.85em; }
-  .reveal h1 { font-size: 1.5em; color: #64ffda; }
-  .reveal h2 { font-size: 1.2em; color: #82b1ff; }
-  .reveal h3 { color: #b388ff; font-size: 1em; }
-  .reveal .small { font-size: 0.55em; color: #888; }
-  .reveal table { font-size: 0.6em; margin: 0 auto; }
-  .reveal th { background: #1a237e; }
-  .two-col { display:flex; gap:20px; text-align:left; font-size:0.65em; }
-  .box { background:#1a1a2e; border:1px solid #333; border-radius:8px; padding:12px; flex:1; }
-  .box h3 { margin:0 0 8px 0; }
-  .num { font-size:1.4em; color:#64ffda; font-weight:bold; }
-  .pipe { display:flex; gap:6px; justify-content:center; align-items:center; font-size:0.5em; flex-wrap:wrap; margin:8px 0; }
-  .pipe span { background:#333; padding:6px 10px; border-radius:6px; white-space:nowrap; }
-  .pipe .arr { background:none; color:#64ffda; font-size:1.2em; padding:0 2px; }
-  .verdict { background:#1a237e; padding:10px; border-radius:8px; font-size:0.7em; margin-top:8px; }
-  .token-compare { display:flex; gap:15px; justify-content:center; margin:10px 0; }
-  .token-box { background:#1a1a2e; border:1px solid #333; border-radius:8px; padding:10px; text-align:center; min-width:140px; }
-  .token-box .price { font-size:1.2em; }
-  .token-box.red { border-color:#e53935; }
-  .token-box.red .price { color:#ef5350; }
-  .token-box.green { border-color:#43a047; }
-  .token-box.green .price { color:#66bb6a; }
+  .reveal { font-size: 0.78em; }
+  .reveal h1 { font-size: 1.3em; color: #64ffda; }
+  .reveal h2 { font-size: 1.1em; color: #82b1ff; }
+  .reveal h3 { color: #b388ff; font-size: 0.9em; margin:0 0 6px 0; }
+  .reveal .s { font-size: 0.58em; color: #888; }
+  .two { display:flex; gap:12px; text-align:left; font-size:0.62em; }
+  .b { background:#1a1a2e; border:1px solid #333; border-radius:8px; padding:10px; flex:1; }
+  .b h3 { margin:0 0 6px 0; }
+  .n { font-size:1.3em; color:#64ffda; font-weight:bold; }
+  .pipe { display:flex; gap:4px; justify-content:center; align-items:center; font-size:0.48em; flex-wrap:wrap; margin:6px 0; }
+  .pipe span { background:#1a1a2e; border:1px solid #333; padding:4px 8px; border-radius:5px; white-space:nowrap; }
+  .pipe .a { background:none; border:none; color:#64ffda; font-size:1.1em; padding:0 1px; }
+  .green { color:#66bb6a; }
+  .red { color:#ef5350; }
+  .vc { background:#1a237e; padding:8px; border-radius:8px; font-size:0.65em; margin-top:6px; }
+  table { font-size:0.58em; margin:0 auto; width:100%; }
+  th { background:#1a237e; padding:3px 8px; }
+  td { padding:2px 8px; border-bottom:1px solid #222; }
 </style>
 </head>
 <body>
 <div class="reveal"><div class="slides">
 
-<!-- ═══════════════════ SLIDE 1: ТИТУЛ + ЦЕННОСТЬ ═══════════════════ -->
+<!-- ═══════════════ SLIDE 1: ЧТО + ЭКОНОМИКА ═══════════════ -->
 <section>
-  <h1>Агентный пайплайн<br>на базе Hermes</h1>
-  <p style="font-size:0.7em; color:#888;">Эволюция персонального AI-агента</p>
+  <h1>Агентный пайплайн на базе Hermes</h1>
+  <p style="font-size:0.6em;color:#888;">Третий шаг эволюции персонального AI-агента: одиночка → оркестратор → <b>пайплайн-фабрика</b></p>
 
-  <div class="two-col" style="margin-top:20px;">
-    <div class="box">
+  <div class="two">
+    <div class="b" style="flex:1.2;">
       <h3>Идея</h3>
-      <p>Сложный пайплайн из дешёвых моделей<br>даёт качество дорогих</p>
-      <p style="margin-top:10px;">📊 Больше токенов<br>💰 Но дешевле за токен<br>🎯 Качество = архитектура пайплайна</p>
+      <p>Сложный конвейер из <span class="green">дешёвых моделей</span> (DeepSeek / локальные Qwen3.6)<br>даёт качество <span class="red">дорогих</span> (Claude/GPT) — за меньшие деньги.</p>
+      <div class="two" style="margin-top:8px;gap:8px;">
+        <div class="b" style="text-align:center;border-color:#e53935;">
+          <p class="red" style="font-size:1.1em;">Claude Opus</p>
+          <p style="margin:2px 0;">$15/1M · 10K токенов</p>
+          <p style="margin:2px 0;">1 проход · без проверок</p>
+          <p style="color:#ef5350;font-weight:bold;">≈ $0.15</p>
+        </div>
+        <div style="align-self:center;font-size:1.2em;">→</div>
+        <div class="b" style="text-align:center;border-color:#43a047;">
+          <p class="green" style="font-size:1.1em;">Пайплайн</p>
+          <p style="margin:2px 0;">$0.27/1M · 200K токенов</p>
+          <p style="margin:2px 0;">5+ проходов · 14 гейтов</p>
+          <p style="color:#66bb6a;font-weight:bold;">≈ $0.05</p>
+        </div>
+      </div>
+      <p style="margin-top:6px;" class="s">55× дешевле/токен → 20× больше токенов на верификацию → <b>качество выше, цена ниже</b></p>
     </div>
-    <div class="box">
-      <h3>Модели</h3>
-      <p>🏠 <b>Локальные:</b> Qwen3.6-35B, DiffusionGemma, Nex-N2</p>
-      <p>☁️ <b>DeepSeek:</b> дешёвые облачные токены</p>
-      <p style="margin-top:8px;">Это <b>третий шаг</b> эволюции персонального агента:<br>одиночный агент → оркестратор → <b>пайплайн-фабрика</b></p>
+    <div class="b">
+      <h3>Что внутри</h3>
+      <table>
+        <tr><td>Агентов</td><td><span class="n" style="font-size:1em;">33</span> · оркестраторы, аналитики, devs (5 стилей), наблюдатели, безопасники</td></tr>
+        <tr><td>Навыков</td><td><span class="n" style="font-size:1em;">132</span> · процедурная память (SKILL.md)</td></tr>
+        <tr><td>Гейтов</td><td><span class="n" style="font-size:1em;">14</span> · deny-by-default, 10 фаз</td></tr>
+        <tr><td>Модели</td><td>🏠 Qwen3.6-35B, DiffusionGemma, Nex-N2 · ☁️ DeepSeek V4</td></tr>
+        <tr><td>Архитектура</td><td>Docker (ARM64 + x86_64) · USB-дистрибутив 3.2 GB</td></tr>
+        <tr><td>PII</td><td><span class="green">0</span> · полная санитизация</td></tr>
+      </table>
+      <p style="margin-top:4px;" class="s">Open-source (MIT) · github.com/Ichigec/her2code</p>
     </div>
   </div>
 
-  <div class="verdict">
-    <b>Суть:</b> не «один дорогой агент», а <b>конвейер из дешёвых</b> — получил задачу, разложил по фазам, исполнил параллельно, проверил гейтами, сохранил опыт
-  </div>
+  <div class="vc"><b>Суть:</b> не «один дорогой агент», а <b>конвейер из дешёвых</b> — задача раскладывается по фазам, исполняется параллельно, проверяется гейтами, опыт сохраняется для следующих.</div>
 </section>
 
-<!-- ═══════════════ SLIDE 2: ЭКОНОМИКА ═══════════════ -->
+<!-- ═══════════════ SLIDE 2: КАК + ВИДЕНИЕ ═══════════════ -->
 <section>
-  <h2>Экономика: дешёвые токены × сложный пайплайн</h2>
+  <h2>Как работает и куда идёт</h2>
 
-  <div class="token-compare">
-    <div class="token-box red">
-      <h3>Одиночный агент</h3>
-      <p class="price">$15 / 1M токенов</p>
-      <p>Claude Opus</p>
-      <p class="small">1 проход</p>
-      <p class="small">Без верификации</p>
-      <p class="small">Без памяти</p>
+  <div class="two">
+    <div class="b" style="flex:1.3;">
+      <h3>Конвейер: 10 фаз с гейтами</h3>
+      <div class="pipe">
+        <span>🎯 Требования</span><span class="a">→</span>
+        <span>🔍 Анализ</span><span class="a">→</span>
+        <span>📚 Research</span><span class="a">→</span>
+        <span>🏗️ Архитектура</span><span class="a">→</span>
+        <span>📋 План</span><span class="a">→</span>
+        <span>⚡ Pre-Flight</span><span class="a">→</span>
+        <span>💻 Dev ×N</span><span class="a">→</span>
+        <span>🔒 Security</span><span class="a">→</span>
+        <span>🚀 Деплой</span><span class="a">→</span>
+        <span>✅ Приёмка</span>
+      </div>
+      <p style="margin-top:4px;font-size:0.55em;"><b>Гейты (14):</b> Bootstrap ✅ · Requirements · Pre-Flight ✅ · Security SAST ✅ · Deployment · Acceptance · <i>+8 ещё</i></p>
+
+      <h3 style="margin-top:12px;">Самоулучшение</h3>
+      <div class="pipe">
+        <span>⚙️ Агент</span><span class="a">→</span>
+        <span>👁️ 4 наблюдателя</span><span class="a">→</span>
+        <span>🧠 Neo4j</span><span class="a">→</span>
+        <span>📝 SKILL.md</span><span class="a">→</span>
+        <span>🔄 Следующий умнее</span>
+      </div>
+      <p class="s">Auditor (качество) · Critic (переусложнение) · Idea Generator (идеи) · Knowledge Curator (граф знаний)</p>
+
+      <div class="pipe" style="margin-top:8px;">
+        <span><b>Plan1</b><br>GLM+DeepSeek</span>
+        <span><b>Plan2</b><br>5× параллельно</span>
+        <span><b>Plan3</b><br>reason+code+sim</span>
+        <span><b>Plan4</b><br>1 дифф. модель</span>
+        <span style="background:#1a237e;">Devs:<br>Creative/Pragmatic/<br>Skeptic/Maverick</span>
+      </div>
     </div>
-    <div style="font-size:1.5em;align-self:center;">→</div>
-    <div class="token-box green">
-      <h3>Пайплайн из дешёвых</h3>
-      <p class="price">$0.27 / 1M токенов</p>
-      <p>DeepSeek V4</p>
-      <p class="small">5+ проходов (анализ → код → ревью → правки → аудит)</p>
-      <p class="small">Гейты на каждой фазе</p>
-      <p class="small">Память + навыки</p>
-    </div>
-  </div>
 
-  <div class="verdict">
-    <b>55× дешевле за токен.</b> Можно потратить в 20× больше токенов на верификацию — и всё равно выйти дешевле, но с качеством выше за счёт многофазной проверки.
-  </div>
+    <div class="b">
+      <h3>Видение: фабрика агентов</h3>
+      <div class="pipe" style="font-size:0.44em;">
+        <span>📥<br>Задача</span><span class="a">→</span>
+        <span>🏭<br>Сборка агента<br>под задачу</span><span class="a">→</span>
+        <span>⚙️<br>Пайплайн<br>10 фаз</span><span class="a">→</span>
+        <span>👁️<br>Анализ</span><span class="a">→</span>
+        <span>🧠<br>Опыт → навыки</span><span class="a">→</span>
+        <span>🔄<br>Следующий<br>умнее</span>
+      </div>
 
-  <div class="two-col" style="margin-top:15px;">
-    <div class="box">
-      <h3>Как достигается качество</h3>
-      <p>🎯 <b>Требования</b> → формализация задачи</p>
-      <p>🔍 <b>Анализ</b> → 5 Whys, альтернативы</p>
-      <p>📚 <b>Research</b> → поиск лучших практик</p>
-      <p>🏗️ <b>Архитектура</b> → контракты модулей</p>
-      <p>💻 <b>Разработка</b> → 5 стилей × N параллельно</p>
-      <p>🔒 <b>Security</b> → SAST (bandit, gitleaks, semgrep)</p>
-      <p>✅ <b>Приёмка</b> → тесты + traceability matrix</p>
-    </div>
-    <div class="box">
-      <h3>Итоговая арифметика</h3>
-      <p style="font-size:1.2em;color:#64ffda;">Claude: 10K токенов × $15 = <b>$0.15</b></p>
-      <p style="font-size:1.2em;color:#66bb6a;">Пайплайн: 200K токенов × $0.27 = <b>$0.05</b></p>
-      <p style="margin-top:15px;color:#888;">+ качество выше за счёт:</p>
-      <p>• Многофазной верификации</p>
-      <p>• Параллельной разработки (выбор лучшего)</p>
-      <p>• Накопления навыков (не повторяет ошибки)</p>
-    </div>
-  </div>
-</section>
+      <table style="margin-top:10px;">
+        <tr><th></th><th>Сейчас (v4)</th><th>Цель (v5+)</th></tr>
+        <tr><td>Агенты</td><td>33 фиксированных</td><td>Динамическая сборка</td></tr>
+        <tr><td>Оркестрация</td><td>Ручной выбор</td><td>Авто-выбор под задачу</td></tr>
+        <tr><td>Память</td><td>132 навыка</td><td>«Геном» агента</td></tr>
+        <tr><td>Сборка</td><td>Статичная</td><td>Из навыков + гейтов + стиля</td></tr>
+        <tr><td>Перенос</td><td>USB-дистрибутив</td><td>Саморепликация</td></tr>
+      </table>
 
-<!-- ═══════════════ SLIDE 3: ПАЙПЛАЙН ═══════════════ -->
-<section>
-  <h2>Конвейер разработки (10 фаз)</h2>
-
-  <div class="pipe">
-    <span>🎯<br>Требования</span><span class="arr">→</span>
-    <span>🔍<br>Анализ</span><span class="arr">→</span>
-    <span>📚<br>Research</span><span class="arr">→</span>
-    <span>🏗️<br>Архитектура</span><span class="arr">→</span>
-    <span>📋<br>План</span><span class="arr">→</span>
-    <span>⚡<br>Pre-Flight</span><span class="arr">→</span>
-    <span>💻<br>Dev × N</span><span class="arr">→</span>
-    <span>🔒<br>Security</span><span class="arr">→</span>
-    <span>🚀<br>Деплой</span><span class="arr">→</span>
-    <span>✅<br>Приёмка</span>
-  </div>
-
-  <div class="two-col" style="margin-top:15px;">
-    <div class="box">
-      <h3>Гейты (deny-by-default)</h3>
-      <p>✅ <b>Bootstrap:</b> среда, venv, AGENTS.md</p>
-      <p>📋 <b>Requirements:</b> BACCM, SMART, NFR</p>
-      <p>⚡ <b>Pre-Flight:</b> контракты, порты, env</p>
-      <p>🔒 <b>Security:</b> bandit, gitleaks, semgrep</p>
-      <p>🚀 <b>Deployment:</b> health-check, smoke-test</p>
-      <p class="small">+ ещё 9 гейтов на остальные фазы</p>
-    </div>
-    <div class="box">
-      <h3>Оркестраторы</h3>
-      <p><b>Plan1:</b> GLM-оркестратор + DeepSeek</p>
-      <p><b>Plan2:</b> 5 исследователей параллельно</p>
-      <p><b>Plan3:</b> 3 модели: reason + code + sim</p>
-      <p><b>Plan4:</b> DiffusionGemma (одна модель)</p>
-      <p style="margin-top:8px;color:#888;">Выбор под задачу: быстрый ответ / баланс / максимальное качество</p>
+      <p style="margin-top:8px;font-size:0.55em;"><b>Метафора:</b> не «один суперагент», а «завод» — получает заказ, собирает агента из компонентов, запускает конвейер, проверяет качество, сохраняет опыт. <b>Сегодня — цех №1 этого завода.</b></p>
     </div>
   </div>
 
-  <div class="verdict">
-    <b>33 агента</b> — оркестраторы, аналитики, разработчики (5 стилей), наблюдатели, безопасники. <b>132 навыка</b> — процедурная память: агент учится и не повторяет ошибок.
-  </div>
-</section>
-
-<!-- ═══════════════ SLIDE 4: САМОУЛУЧШЕНИЕ ═══════════════ -->
-<section>
-  <h2>Цикл самоулучшения агента</h2>
-
-  <div class="pipe">
-    <span>⚙️<br>Агент работает</span><span class="arr">→</span>
-    <span>👁️<br>4 наблюдателя<br>анализируют</span><span class="arr">→</span>
-    <span>🧠<br>Уроки → Neo4j<br>граф знаний</span><span class="arr">→</span>
-    <span>📝<br>Успешный pattern<br>→ SKILL.md</span><span class="arr">→</span>
-    <span>🚦<br>Ошибка → новый<br>гейт</span><span class="arr">→</span>
-    <span>🔄<br>Следующий агент<br>умнее</span>
-  </div>
-
-  <div class="two-col" style="margin-top:15px;">
-    <div class="box">
-      <h3>Наблюдатели (4)</h3>
-      <p><b>Auditor</b> — качество процесса</p>
-      <p><b>Critic</b> — поиск переусложнения</p>
-      <p><b>Idea Generator</b> — новые идеи</p>
-      <p><b>Knowledge Curator</b> — сохранение в Neo4j</p>
-    </div>
-    <div class="box">
-      <h3>Результат</h3>
-      <p>📦 <b>132 навыка</b> накоплено</p>
-      <p>📋 <b>14 гейтов</b> — растущий стандарт</p>
-      <p>📖 <b>AGENTS.md</b> — единые конвенции</p>
-      <p>Каждый новый агент <b>наследует опыт</b> всех предыдущих</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══════════════ SLIDE 5: ВИДЕНИЕ ═══════════════ -->
-<section>
-  <h2>Видение: Фабрика агентов</h2>
-
-  <div class="two-col">
-    <div class="box">
-      <h3>Сейчас: конвейер v4</h3>
-      <p>33 фиксированных агента</p>
-      <p>Ручной выбор оркестратора</p>
-      <p>Навыки накапливаются</p>
-      <p>Агент = роль в пайплайне</p>
-      <p class="small" style="margin-top:8px;">Hermes Agent — платформа исполнения</p>
-    </div>
-    <div class="box">
-      <h3>Цель: фабрика v5+</h3>
-      <p>Агент создаётся <b>под задачу</b></p>
-      <p>Авто-сборка из навыков</p>
-      <p>«Геном» агента: навыки + гейты + стиль</p>
-      <p>Агент = временная конструкция</p>
-      <p class="small" style="margin-top:8px;">Саморепликация на новые машины</p>
-    </div>
-  </div>
-
-  <h3 style="margin-top:15px;">Идеальный сценарий</h3>
-  <div class="pipe">
-    <span>📥<br>Задача</span><span class="arr">→</span>
-    <span>🏭<br>Фабрика собирает<br>агента под задачу</span><span class="arr">→</span>
-    <span>⚙️<br>Пайплайн<br>10 фаз</span><span class="arr">→</span>
-    <span>👁️<br>Наблюдатели<br>анализируют</span><span class="arr">→</span>
-    <span>🧠<br>Опыт → навыки<br>→ Neo4j</span><span class="arr">→</span>
-    <span>🔄<br>Следующий<br>умнее</span>
-  </div>
-
-  <div class="verdict">
-    <b>Не «один суперагент», а «завод».</b> Получает заказ → собирает агента из компонентов → запускает конвейер → проверяет качество → сохраняет опыт. <b>Hermes сегодня — это цех №1 этого завода.</b>
-  </div>
-</section>
-
-<!-- ═══════════════ SLIDE 6: ИТОГИ ═══════════════ -->
-<section>
-  <h2>Итоги</h2>
-
-  <div style="display:flex;gap:15px;justify-content:center;margin:15px 0;">
-    <div><span class="num">33</span><br><span class="small">агента</span></div>
-    <div><span class="num">132</span><br><span class="small">навыка</span></div>
-    <div><span class="num">14</span><br><span class="small">гейтов</span></div>
-    <div><span class="num">3.2</span><br><span class="small">GB</span></div>
-    <div><span class="num">0</span><br><span class="small">PII</span></div>
-  </div>
-
-  <table>
-    <tr><th>Что</th><th>Где</th></tr>
-    <tr><td>Репозиторий</td><td>github.com/Ichigec/her2code</td></tr>
-    <tr><td>Бинарные файлы</td><td>github.com/Ichigec/her2code/releases/tag/v4.0.0</td></tr>
-    <tr><td>Презентация</td><td>PRESENTATION.html (этот файл)</td></tr>
-    <tr><td>Описание</td><td>DESCRIPTION.md</td></tr>
-    <tr><td>Архитектура</td><td>ARCHITECTURE.svg</td></tr>
-  </table>
-
-  <div class="verdict" style="margin-top:15px;">
-    <b>Агентный пайплайн на базе Hermes.</b> Дешёвые токены (локальные модели / DeepSeek) × сложный пайплайн (10 фаз, 14 гейтов) = качество дорогих моделей за меньшие деньги. 33 агента, 132 навыка, zero PII. Open-source (MIT).
-  </div>
+  <div class="vc">33 агента · 132 навыка · 14 гейтов · 3.2 GB · dual-arch · zero PII · <b>github.com/Ichigec/her2code</b></div>
 </section>
 
 </div></div>
